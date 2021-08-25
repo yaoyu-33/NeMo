@@ -48,9 +48,10 @@ def get_segments(
     config = cs.CtcSegmentationParameters()
     config.char_list = vocabulary
     config.min_window_size = window_size
-    config.frame_duration_ms = frame_duration_ms
-    config.blank = vocabulary[-1]
+    config.frame_duration_ms = 80 # frame_duration_ms
+    config.blank = vocabulary[0]
     config.subsampling_factor = 8
+    config.start_of_ground_truth = "$"
     # config.index_duration = frame_duration_ms * config.subsampling_factor / 1000
     # new configuration
     # config.blank_transition_cost_zero = False
@@ -93,7 +94,7 @@ def get_segments(
 
     timings, char_probs, char_list = cs.ctc_segmentation(config, log_probs, ground_truth_mat)
     segments = cs.determine_utterance_segments(config, utt_begin_indices, char_probs, timings, text)
-    write_output(output_file, path_wav, segments, text, text_no_preprocessing, text_normalized)
+    write_output(output_file, path_wav, segments, text, text_no_preprocessing, text_normalized, stride=8)
 
 
 def write_output(
@@ -122,7 +123,7 @@ def write_output(
 
         for i, (start, end, score) in enumerate(segments):
             outfile.write(
-                f'{start/stride} {end/stride} {score/4} | {text[i]} | {text_no_preprocessing[i]} | {text_normalized[i]}\n'
+                f'{start/stride} {end/stride} {score} | {text[i]} | {text_no_preprocessing[i]} | {text_normalized[i]}\n'
             )
 
 
