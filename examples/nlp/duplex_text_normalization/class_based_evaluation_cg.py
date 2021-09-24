@@ -38,7 +38,15 @@ from nemo.collections.nlp.models.duplex_text_normalization.utils import get_form
 from nemo.collections.nlp.models.duplex_text_normalization.utils import get_formatted_string, is_url
 from nemo.core.config import hydra_runner
 from nemo.utils import logging
+from collections import defaultdict
 
+def print_errors(errors):
+    for class_name, class_errors in errors.items():
+        for i, pred, target in class_errors:
+            print(class_name + "\t" + i)
+            print(class_name + "\t" + pred)
+            print(class_name + "\t" + target)
+        print()
 
 def print_class_based_stats(class2stats):
     """ Print statistics of class-based evaluation results """
@@ -70,6 +78,8 @@ def main(cfg: DictConfig) -> None:
     decoder_model.setup_test_data(cfg.data.test_ds)
     test_dataset, test_dl = decoder_model.test_dataset, decoder_model._test_dl
     # Inference
+    
+    errors_tn_stats, errors_itn_stats = defaultdict(list), defaultdict(list)
     itn_class2stats, tn_class2stats = {}, {}
 
     for ix, examples in tqdm(enumerate(test_dl)):
@@ -104,25 +114,37 @@ def main(cfg: DictConfig) -> None:
 
             # For TN cases where the neural model is not confident, use CGs
             neural_confidence_threshold = transformer_model.neural_confidence_threshold
-            for ix, (_dir, _input, _prob) in enumerate(zip(batch_dirs, batch_input_centers, sequence_probs)):
+            for ix, (_dir, _input, _prob, _target) in enumerate(zip(batch_dirs, batch_input_centers, sequence_probs, batch_targets)):
                 if _dir == constants.INST_FORWARD and _prob < neural_confidence_threshold:
                     if is_url(_input):
                         _input = _input.replace(' ', '')  # Remove spaces in URLs
                     try:
-                        cg_outputs = transformer_model.cg_normalizer.normalize(text=_input, verbose=False, n_tagged=1)
-                        batch_preds[ix] = list(cg_outputs)[0]
+                        cg_outputs = transformer_model.cg_normalizer.normalize(text=_input, verbose=False, n_tagged=10000)
+                        if _target in cg_outputs:
+                            batch_preds[ix] = _target
+                        else:
+                            batch_preds[ix] = list(cg_outputs)[0]
                     except:  # if there is any exception, fall back to the input
                         batch_preds[ix] = _input
         
         batch_preds = decoder_model.postprocess_output_spans(batch_input_centers, batch_preds, batch_dirs)
         # Update itn_class2stats and tn_class2stats
-        for direction, _class, pred, target in zip(batch_dirs, batch_classes, batch_preds, batch_targets):
+        for input, direction, _class, pred, target in zip(batch_inputs, batch_dirs, batch_classes, batch_preds, batch_targets):
             correct = TextNormalizationTestDataset.is_same(pred, target, direction, lang)
             stats = itn_class2stats if direction == constants.INST_BACKWARD else tn_class2stats
+            errors = errors_itn_stats if direction == constants.INST_BACKWARD else errors_tn_stats
             if not _class in stats:
                 stats[_class] = []
             stats[_class].append(int(correct))
+            
+            if not correct:
+                errors[_class].append((input, pred, target))
 
+    # Print out errors
+    print('ITN (Backward Direction)')
+    print_errors(errors_itn_stats)
+    print('TN (Forward Direction)')
+    print_errors(errors_tn_stats)
     # Print out stats
     print('ITN (Backward Direction)')
     print_class_based_stats(itn_class2stats)
