@@ -28,6 +28,8 @@ python class_based_evaluation.py
 """
 
 import numpy as np
+import regex as re
+import string
 from helpers import DECODER_MODEL, TAGGER_MODEL, instantiate_model_and_trainer
 from omegaconf import DictConfig, OmegaConf
 from tqdm import tqdm
@@ -58,6 +60,22 @@ def print_class_based_stats(class2stats):
         formatted_str = get_formatted_string((class_name, class_acc), str_max_len=20)
         print(formatted_str)
     print()
+
+
+def remove_punctuation(word: str, remove_spaces=True, do_lower=True):
+    """
+    Removes all punctuation marks from a word except for '
+    that is often a part of word: don't, it's, and so on
+    """
+    all_punct_marks = string.punctuation
+    word = re.sub('[' + all_punct_marks + ']', '', word)
+
+    if remove_spaces:
+        word = word.replace(" ", "").strip()
+
+    if do_lower:
+        word = word.lower()
+    return word
 
 
 @hydra_runner(config_path="conf", config_name="duplex_tn_config")
@@ -120,7 +138,11 @@ def main(cfg: DictConfig) -> None:
                         _input = _input.replace(' ', '')  # Remove spaces in URLs
                     try:
                         cg_outputs = transformer_model.cg_normalizer.normalize(text=_input, verbose=False, n_tagged=10000)
-                        if _target in cg_outputs:
+
+                        pred_no_punct = [remove_punctuation(x).strip() for x in cg_outputs]
+                        target_no_punct = remove_punctuation(_target).strip()
+
+                        if target_no_punct in pred_no_punct:
                             batch_preds[ix] = _target
                         else:
                             batch_preds[ix] = list(cg_outputs)[0]
