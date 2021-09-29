@@ -26,8 +26,11 @@ from nemo.collections.nlp.modules.common.megatron.module import MegatronModule
 from megatron.model.enums import AttnMaskType, LayerType, AttnType
 from nemo.collections.nlp.modules.common.megatron.fused_layer_norm import MixedFusedLayerNorm as LayerNorm
 from nemo.collections.nlp.modules.common.megatron.fused_softmax import FusedScaleMaskSoftmax
-from nemo.collections.nlp.modules.common.megatron.fused_bias_gelu import bias_gelu_impl_fp16, bias_gelu_impl_bf16
+from nemo.collections.nlp.modules.common.megatron.fused_bias_gelu import FusedBiasGeLU
+from nemo.collections.nlp.modules.common.megatron.fused_bias_dropout_add import \
+        BiasDropoutAddFusedTrain, BiasDropoutAddFusedInference, bias_dropout_add
 from nemo.collections.nlp.modules.common.megatron.utils import attention_mask_func, openai_gelu, erf_gelu
+from nemo.collections.nlp.modules.common.megatron.utils import dummy_handler
 
 
 """ We use the following notation throughout this file:
@@ -85,11 +88,7 @@ class ParallelMLP(MegatronModule):
             use_cpu_initialization=args.use_cpu_initialization,
         )
 
-        if args.fp16:
-            self.bias_gelu_impl = bias_gelu_impl_fp16
-        else:
-            self.bias_gelu_impl = bias_gelu_impl_bf16
-
+        self.bias_gelu_impl = FusedBiasGeLU(args.fp16, args.bf16)
 
     def forward(self, hidden_states):
 
@@ -345,13 +344,6 @@ class ParallelAttention(MegatronModule):
         return output, bias
 
 
-def bias_dropout_add(x, bias, residual, prob, training):
-    # type: (Tensor, Tensor, Tensor, float, bool) -> Tensor
-    out = torch.nn.functional.dropout(x + bias, p=prob, training=training)
-    out = residual + out
-    return out
-
-
 def get_bias_dropout_add(training):
     def _bias_dropout_add(x, bias, residual, prob):
         return bias_dropout_add(x, bias, residual, prob, training)
@@ -359,30 +351,7 @@ def get_bias_dropout_add(training):
     return _bias_dropout_add
 
 
-@torch.jit.script
-def bias_dropout_add_fused_train_(x, bias, residual, prob):
-    # type: (Tensor, Tensor, Tensor, float) -> Tensor
-    return bias_dropout_add(x, bias, residual, prob, True)
-
-
-class BiasDropoutAddFusedTrain(torch.nn.Module):
-    def __init__(self):
-        super().__init__()
-
-    @torch.cuda.amp.custom_fwd(cast_inputs=torch.float16)
-    def forward(self, x, bias, residual, prob):
-        return bias_dropout_add_fused_train_(x, bias, residual, prob)
-
-bias_dropout_add_fused_train = BiasDropoutAddFusedTrain()
-
-
-@torch.jit.script
-def bias_dropout_add_fused_inference(x, bias, residual, prob):
-    # type: (Tensor, Tensor, Tensor, float) -> Tensor
-    return bias_dropout_add(x, bias, residual, prob, False)
-
-
-class ParallelTransformerLayer(MegatronModule):
+class ParallelTransformerLayer_(MegatronModule):
     """A single transformer layer.
 
     Transformer layer takes input with size [b, s, h] and returns an
@@ -399,7 +368,7 @@ class ParallelTransformerLayer(MegatronModule):
     ):
         args = get_args()
 
-        super(ParallelTransformerLayer, self).__init__()
+        super(ParallelTransformerLayer_, self).__init__()
         self.layer_number = layer_number
         self.layer_type = layer_type
 
@@ -409,7 +378,7 @@ class ParallelTransformerLayer(MegatronModule):
         self.fp32_residual_connection = args.fp32_residual_connection
 
         # Layernorm on the input data.
-        self.input_layernorm = LayerNorm(args.hidden_size, eps=args.layernorm_epsilon)
+        self.input_layernorm = LayerNorm(args.hidden_size, eps=args.layernorm_epsilon, fp16=args.fp16, bf16=args.bf16)
 
         # Self attention.
         self.self_attention = ParallelAttention(
@@ -423,17 +392,23 @@ class ParallelTransformerLayer(MegatronModule):
         self.bias_dropout_fusion = args.bias_dropout_fusion
 
         # Layernorm on the attention output
-        self.post_attention_layernorm = LayerNorm(args.hidden_size, eps=args.layernorm_epsilon)
+        self.post_attention_layernorm = LayerNorm(
+                args.hidden_size, eps=args.layernorm_epsilon, fp16=args.fp16, bf16=args.bf16)
 
         if self.layer_type == LayerType.decoder:
             self.inter_attention = ParallelAttention(
                 init_method, output_layer_init_method, layer_number, attention_type=AttnType.cross_attn
             )
             # Layernorm on the attention output.
-            self.post_inter_attention_layernorm = LayerNorm(args.hidden_size, eps=args.layernorm_epsilon)
+            self.post_inter_attention_layernorm = LayerNorm(
+                    args.hidden_size, eps=args.layernorm_epsilon, fp16=args.fp16, bf16=args.bf16)
 
         # MLP
         self.mlp = ParallelMLP(init_method, output_layer_init_method)
+
+
+        self.bias_dropout_add_fused_train = BiasDropoutAddFusedTrain(args.fp16, args.bf16)
+        self.bias_dropout_add_fused_inference = BiasDropoutAddFusedInference(args.fp16, args.bf16)
 
     def forward(
         self,
@@ -468,9 +443,9 @@ class ParallelTransformerLayer(MegatronModule):
         # dropout semantics during training and inference phases.
         if self.bias_dropout_fusion:
             if self.training:
-                bias_dropout_add_func = bias_dropout_add_fused_train
+                bias_dropout_add_func = self.bias_dropout_add_fused_train
             else:
-                bias_dropout_add_func = bias_dropout_add_fused_inference
+                bias_dropout_add_func = self.bias_dropout_add_fused_inference
         else:
             bias_dropout_add_func = get_bias_dropout_add(self.training)
 
@@ -519,6 +494,40 @@ class ParallelTransformerLayer(MegatronModule):
             output = [output, presents]
 
         return output
+
+
+class ParallelTransformerLayer(ParallelTransformerLayer_):
+    def __init__(
+        self,
+        init_method,
+        output_layer_init_method,
+        layer_number,
+        layer_type=LayerType.encoder,
+        self_attn_mask_type=AttnMaskType.padding,
+    ):
+        super(ParallelTransformerLayer, self).__init__(
+                init_method,
+                output_layer_init_method,
+                layer_number,
+                layer_type,
+                self_attn_mask_type)
+
+        args = get_args()
+        self.autocast_handler = torch.cuda.amp.autocast if (args.fp16 or args.bf16) else dummy_handler
+
+    def forward(
+            self,
+            hidden_states,
+            attention_mask,
+            encoder_output=None,
+            enc_dec_attn_mask=None,
+            layer_past=None,
+            get_key_value=False
+    ):
+
+        with self.autocast_handler():
+            return super().forward(
+                    hidden_states, attention_mask, encoder_output, enc_dec_attn_mask, layer_past, get_key_value)
 
 
 class ParallelTransformer(MegatronModule):
@@ -588,7 +597,7 @@ class ParallelTransformer(MegatronModule):
 
         if self.post_process:
             # Final layer norm before output.
-            self.final_layernorm = LayerNorm(args.hidden_size, eps=args.layernorm_epsilon, fp16=args.fp16)
+            self.final_layernorm = LayerNorm(args.hidden_size, eps=args.layernorm_epsilon, fp16=args.fp16, bf16=args.bf16)
 
     def _get_layer(self, layer_number):
         return self.layers[layer_number]

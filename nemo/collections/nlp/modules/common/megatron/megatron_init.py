@@ -42,6 +42,8 @@ def initialize_megatron_for_nemo(
     use_cpu_initialization=False,
     init_method_std=0.02,
     fp16=True,
+    activations_checkpoint_method=None,
+    activations_checkpoint_num_layers=1
 ):
     os.environ["WORLD_SIZE"] = str(world_size)
     os.environ["RANK"] = str(global_rank)
@@ -58,7 +60,8 @@ def initialize_megatron_for_nemo(
     args_defaults['use_cpu_initialization'] = use_cpu_initialization  # need to change this to use gpu init
 
     extra_args_provider = get_extra_args_provider(
-        micro_batch_size, tensor_model_parallel_size, encoder_seq_length, init_method_std, fp16
+        micro_batch_size, tensor_model_parallel_size, encoder_seq_length, init_method_std, fp16,
+        activations_checkpoint_method, activations_checkpoint_num_layers
     )
 
     app_state = AppState()
@@ -79,6 +82,7 @@ def initialize_megatron_for_nemo(
 
 def get_extra_args_provider(
     micro_batch_size=1, tensor_model_parallel_size=1, encoder_seq_length=512, init_method_std=0.02, fp16=True,
+    activations_checkpoint_method=None, activations_checkpoint_num_layers=1
 ):
     def extra_args_provider(parser):
         parser.set_defaults(micro_batch_size=micro_batch_size)
@@ -86,6 +90,8 @@ def get_extra_args_provider(
         parser.set_defaults(encoder_seq_length=encoder_seq_length)
         parser.set_defaults(init_method_std=init_method_std)
         parser.set_defaults(fp16=fp16)
+        parser.set_defaults(activations_checkpoint_method=activations_checkpoint_method)
+        parser.set_defaults(activations_checkpoint_num_layers=activations_checkpoint_num_layers)
         return parser
 
     return extra_args_provider

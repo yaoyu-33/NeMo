@@ -72,6 +72,8 @@ class MegatronGPTModel(NLPModel):
             merge_file=cfg.tokenizer.merge_file,
             fp16=cfg.get('fp16', True),
             use_cpu_initialization=cfg.get('use_cpu_initialization', False),
+            activations_checkpoint_method=cfg.get('activations_checkpoint_method', None),
+            activations_checkpoint_num_layers=cfg.get('activations_checkpoint_num_layers', 1),
         )
         args = get_args()
 
