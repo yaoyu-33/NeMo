@@ -61,7 +61,7 @@ with open(input_file.replace(".txt", "_reduced.txt"), 'w') as f_out:
         for line in f:
             if not line:
                 continue
-            example.append(line[::-1][:line[::-1].find('\t')].strip()[::-1])
+            example.append(line[::-1][: line[::-1].find('\t')].strip()[::-1])
             if len(example) == 4:
                 original_wrong += 1
                 _input_full, _input, pred, target = example
@@ -84,10 +84,10 @@ with open(input_file.replace(".txt", "_reduced.txt"), 'w') as f_out:
                         # print('nn...:', pred)
                         # print('target:', target)
                         # print("-" * 40)
-                        f_out.write(line[: line.find('\t')].strip() + '\t' + "INPUT" + '\t'+example[0] + '\n')
-                        f_out.write(line[: line.find('\t')].strip() + '\t' + "Cente" + '\t'+example[1] + '\n')
-                        f_out.write(line[: line.find('\t')].strip() + '\t' + "PREDI" + '\t'+example[2] + '\n')
-                        f_out.write(line[: line.find('\t')].strip() + '\t' + "TARGE" + '\t'+example[3] + '\n')
+                        f_out.write(line[: line.find('\t')].strip() + '\t' + "INPUT" + '\t' + example[0] + '\n')
+                        f_out.write(line[: line.find('\t')].strip() + '\t' + "Cente" + '\t' + example[1] + '\n')
+                        f_out.write(line[: line.find('\t')].strip() + '\t' + "PREDI" + '\t' + example[2] + '\n')
+                        f_out.write(line[: line.find('\t')].strip() + '\t' + "TARGE" + '\t' + example[3] + '\n')
                         wrong += 1
 
                 example = []

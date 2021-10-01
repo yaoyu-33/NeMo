@@ -40,9 +40,10 @@ class WhiteListFst(GraphFst):
         input_case: accepting either "lower_cased" or "cased" input.
         deterministic: if True will provide a single transduction option,
             for False multiple options (used for audio-based normalization)
+        input_file: path to a file with whitelist replacements
     """
 
-    def __init__(self, input_case: str, deterministic: bool = True):
+    def __init__(self, input_case: str, deterministic: bool = True, input_file: str = None):
         super().__init__(name="whitelist", kind="classify", deterministic=deterministic)
 
         default_whitelist = defaultWhiteListFst(input_case=input_case)

@@ -162,9 +162,7 @@ class DuplexDecoderModel(NLPModel):
         for idx, class_id in enumerate(batch['semiotic_class_id']):
             direction = constants.TASK_ID_TO_MODE[batch['direction'][idx][0].item()]
             class_name = self._val_id_to_class[dataloader_idx][class_id[0].item()]
-            correct = torch.tensor(
-                labels_str[idx] == generated_texts[idx], dtype=torch.int
-            ).to(self.device)
+            correct = torch.tensor(labels_str[idx] == generated_texts[idx], dtype=torch.int).to(self.device)
             if not correct:
                 print()
                 print(f"{class_name}\tInput\t{input_str[idx]}")

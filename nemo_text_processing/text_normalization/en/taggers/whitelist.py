@@ -75,5 +75,6 @@ class WhiteListFst(GraphFst):
             else:
                 graph = whitelist_provided
 
+        self.whitelist_graph = graph
         self.graph = (convert_space(graph)).optimize()
         self.fst = (pynutil.insert("name: \"") + self.graph + pynutil.insert("\"")).optimize()

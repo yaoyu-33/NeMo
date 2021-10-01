@@ -46,10 +46,16 @@ class ClassifyFstSmall(GraphFst):
             for False multiple options (used for audio-based normalization)
         cache_dir: path to a dir with .far grammar file. Set to None to avoid using cache.
         overwrite_cache: set to True to overwrite .far files
+        whitelist: path to a file with whitelist replacements
     """
 
     def __init__(
-        self, input_case: str, deterministic: bool = True, cache_dir: str = None, overwrite_cache: bool = False
+        self,
+        input_case: str,
+        deterministic: bool = True,
+        cache_dir: str = None,
+        overwrite_cache: bool = False,
+        whitelist: str = None,
     ):
         super().__init__(name="tokenize_and_classify", kind="classify", deterministic=deterministic)
 
@@ -90,18 +96,18 @@ class ClassifyFstSmall(GraphFst):
             money_graph = taggers_small.MoneyFst(
                 small_cardinal=cardinal_small, small_decimal=decimal_small, deterministic=deterministic,
             ).fst
-            whitelist_graph = taggers_small.WhiteListFst(input_case=input_case, deterministic=deterministic).fst
+            whitelist_graph = taggers_small.WhiteListFst(input_case=input_case, deterministic=deterministic,).fst
             punct_graph = taggers.PunctuationFst(deterministic=deterministic).fst
 
             classify = (
-                # pynutil.add_weight(whitelist_graph, 1.01)
-                # | pynutil.add_weight(decimal_graph, 1.1)
-                # | pynutil.add_weight(measure_graph, 1.1)
-                # | pynutil.add_weight(cardinal_graph, 1.1)
-                # | pynutil.add_weight(money_graph, 1.1)
-                # | pynutil.add_weight(electonic_graph, 1.1)
-                pynutil.add_weight(fraction_graph, 1.1)
-                # | pynutil.add_weight(word_graph, 100)
+                pynutil.add_weight(whitelist_graph, 1.01)
+                | pynutil.add_weight(decimal_graph, 1.1)
+                | pynutil.add_weight(measure_graph, 1.1)
+                | pynutil.add_weight(cardinal_graph, 1.1)
+                | pynutil.add_weight(money_graph, 1.1)
+                | pynutil.add_weight(electonic_graph, 1.1)
+                | pynutil.add_weight(fraction_graph, 1.1)
+                | pynutil.add_weight(word_graph, 100)
             )
 
             punct = pynutil.insert("tokens { ") + pynutil.add_weight(punct_graph, weight=1.1) + pynutil.insert(" }")
