@@ -14,7 +14,15 @@
 # limitations under the License.
 
 
-from nemo_text_processing.text_normalization.en.graph_utils import NEMO_ALPHA, NEMO_DIGIT, GraphFst, get_abs_path
+from nemo_text_processing.text_normalization.en.graph_utils import (
+    NEMO_ALPHA,
+    NEMO_DIGIT,
+    NEMO_LOWER,
+    TO_LOWER,
+    GraphFst,
+    get_abs_path,
+    insert_space,
+)
 
 try:
     import pynini
@@ -71,7 +79,19 @@ class ElectronicFst(GraphFst):
         protocol = pynutil.insert("protocol: \"") + protocol + pynutil.insert("\"")
         graph = username + domain_graph
         graph |= domain_common_graph
-        graph |= protocol + pynutil.insert(" ") + domain_graph
+        graph |= pynini.closure(protocol, 0, 1) + pynutil.insert(" ") + domain_graph
+        graph = graph.optimize()
 
-        final_graph = self.add_tokens(graph)
+        graph_digit = pynini.string_file(get_abs_path("data/numbers/digit.tsv"))
+        graph_zero = pynini.string_file(get_abs_path("data/numbers/zero.tsv"))
+        single_digits_graph = pynini.invert(graph_digit | graph_zero)
+        single_digits_graph = single_digits_graph + pynini.closure(insert_space + single_digits_graph)
+
+        # 2.7.7.68 -> two dot seven seven six eight
+        dot = pynini.cross(".", " dot ")
+        one_two_digits = pynini.compose(NEMO_DIGIT ** (1, 2), single_digits_graph)
+        id = one_two_digits + dot + one_two_digits + dot + one_two_digits + dot + one_two_digits
+        id = pynutil.insert("protocol: \"") + id + pynutil.insert("\"")
+
+        final_graph = self.add_tokens(graph | id.optimize())
         self.fst = final_graph.optimize()
