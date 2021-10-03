@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from nemo_text_processing.text_normalization.en.graph_utils import GraphFst
+from nemo_text_processing.text_normalization.en.graph_utils import NEMO_DIGIT, GraphFst
 
 try:
     import pynini
@@ -47,9 +47,15 @@ class FractionFst(GraphFst):
         endings = ["rd", "th", "st", "nd"]
         endings += [x.upper() for x in endings]
         optional_end = pynini.closure(pynini.cross(pynini.union(*endings), ""), 0, 1)
-
         denominator = pynutil.insert("denominator: \"") + cardinal_graph + optional_end + pynutil.insert("\"")
+        specials = pynini.closure(
+            NEMO_DIGIT ** (1, ...) + (pynini.accep(" ") | pynutil.insert(" ")), 0, 1
+        ) + pynini.cross("¾", "3/4") | pynini.cross("¼", "1/4")
 
+        # from pynini.lib.rewrite import top_rewrite
+        # import pdb; pdb.set_trace()
         self.graph = pynini.closure(integer, 0, 1) + numerator + denominator
+        self.graph |= pynini.compose(specials, self.graph)
+
         final_graph = self.add_tokens(self.graph)
         self.fst = final_graph.optimize()

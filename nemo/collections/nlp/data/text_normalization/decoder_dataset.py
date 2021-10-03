@@ -410,8 +410,15 @@ class DecoderDataInstance:
 
         # Extract input_words and output_words
         if do_basic_tokenize:
-            c_w_words = basic_tokenize(' '.join(c_w_words), lang)
-            c_s_words = basic_tokenize(' '.join(c_s_words), lang)
+            # c_w_words = basic_tokenize(' '.join(c_w_words), lang)
+            # c_s_words = basic_tokenize(' '.join(c_s_words), lang)
+            from nemo.collections.common.tokenizers.moses_tokenizers import MosesProcessor
+
+            processor = MosesProcessor(lang_id="en")
+            # sents = [self.decoder.processor.tokenize(x).split() for x in sents]
+            c_w_words = processor.tokenize(' '.join(c_w_words), lang)
+            c_s_words = processor.tokenize(' '.join(c_s_words), lang)
+
         w_input = w_left + [extra_id_0] + c_w_words + [extra_id_1] + w_right
         s_input = s_left + [extra_id_0] + c_s_words + [extra_id_1] + s_right
         if inst_dir == constants.INST_BACKWARD:

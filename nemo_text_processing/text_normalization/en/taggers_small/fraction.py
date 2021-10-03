@@ -95,6 +95,10 @@ class FractionFst(GraphFst):
         graph |= optional_integer_part_default + large_numerator + small_denominator
         graph |= optional_integer_part_default + small_numerator + slash + large_denominator
 
+        # ¾ cases
+        specials = pynini.cross("¾", "3/4") | pynini.cross("¼", "3/4")
+        specials = pynini.closure(NEMO_DIGIT ** (1, ...) + (pynini.accep(" ") | pynutil.insert(" ")), 0, 1) + specials
+
         # accept without transformations
         graph |= optional_integer_part_for_small_num + pynutil.add_weight(
             pynutil.insert("numerator: \"")
@@ -105,6 +109,8 @@ class FractionFst(GraphFst):
             + pynutil.insert(" denominator: \"NONE\""),
             0.1,
         )
+
+        graph |= pynini.compose(specials, graph)
 
         graph = self.add_tokens(graph)
         self.fst = graph.optimize()

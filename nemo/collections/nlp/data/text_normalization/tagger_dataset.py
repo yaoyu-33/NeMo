@@ -205,9 +205,16 @@ class TaggerDataInstance:
         for w_word, s_word in zip(w_words, s_words):
             # Basic tokenization (if enabled)
             if do_basic_tokenize:
-                w_word = ' '.join(basic_tokenize(w_word, self.lang))
+                # w_word = ' '.join(basic_tokenize(w_word, self.lang))
+
+                from nemo.collections.common.tokenizers.moses_tokenizers import MosesProcessor
+
+                processor = MosesProcessor(lang_id="en")
+                w_word = ' '.join(processor.tokenize(w_word))
+
                 if not s_word in constants.SPECIAL_WORDS:
-                    s_word = ' '.join(basic_tokenize(s_word, self.lang))
+                    # s_word = ' '.join(basic_tokenize(s_word, self.lang))
+                    s_word = ' '.join(processor.tokenize(s_word))
             # Update input_words and labels
             if s_word == constants.SIL_WORD and direction == constants.INST_BACKWARD:
                 continue

@@ -90,6 +90,7 @@ with open(input_file.replace(".txt", "_reduced.txt"), 'w') as f_out:
                         f_out.write(line[: line.find('\t')].strip() + '\t' + "Cente" + '\t' + example[1] + '\n')
                         f_out.write(line[: line.find('\t')].strip() + '\t' + "PREDI" + '\t' + example[2] + '\n')
                         f_out.write(line[: line.find('\t')].strip() + '\t' + "TARGE" + '\t' + example[3] + '\n')
+                        f_out.write("-" * 40 + '\n')
                         wrong += 1
 
                 example = []

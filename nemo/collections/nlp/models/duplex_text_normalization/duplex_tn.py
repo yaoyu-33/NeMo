@@ -239,13 +239,18 @@ class DuplexTextNormalizationModel(nn.Module):
         original_sents = [s for s in sents]
         # Separate into words
         if do_basic_tokenization:
-            sents = [self.decoder.processor.tokenize(x).split() for x in sents]
+            # print(sents)
+            sents = [basic_tokenize(sent, self.lang) for sent in sents]
+            # sents = [self.decoder.processor.tokenize(x).split() for x in sents]
+            # sents = [basic_tokenize(sent, self.lang) for sent in sents]
+            # print(sents)
 
         # Tagging
         # span_ends included, returns index wrt to words in input without auxiliary words
         tag_preds, nb_spans, span_starts, span_ends = self.tagger._infer(
             sents, inst_directions, do_basic_tokenization=do_basic_tokenization
         )
+        # import pdb; pdb.set_trace()
         output_spans = self.decoder._infer(sents, nb_spans, span_starts, span_ends, inst_directions)
 
         if not do_basic_tokenization:
