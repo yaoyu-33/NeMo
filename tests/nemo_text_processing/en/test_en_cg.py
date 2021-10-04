@@ -67,3 +67,14 @@ class TestDate:
     def test_norm_money(self, test_input, expected):
         pred = self.normalizer_en.normalize(test_input, verbose=False)
         assert pred == expected, f"For input: '{test_input}': {pred} != {expected}"
+
+
+    @parameterized.expand(parse_test_case_file('en/data_cg_text_normalization/test_cases_en_cg_time.txt'))
+    @pytest.mark.skipif(
+        not PYNINI_AVAILABLE, reason="`pynini` not installed, please install via nemo_text_processing/setup.sh"
+    )
+    @pytest.mark.run_only_on('CPU')
+    @pytest.mark.unit
+    def test_norm_time(self, test_input, expected):
+        pred = self.normalizer_en.normalize(test_input, verbose=False)
+        assert pred == expected, f"For input: '{test_input}': {pred} != {expected}"

@@ -61,16 +61,16 @@ class VerbalizeFst(GraphFst):
 
         graph = (
             time_graph
-            | date_graph
+            # | date_graph
             | money_graph
             | measure_graph
-            | ordinal_graph
+            # | ordinal_graph
             | decimal_graph
             | cardinal_graph
-            | telephone_graph
-            | electronic_graph
-            | fraction_graph
-            | whitelist_graph
+            # | telephone_graph
+            # | electronic_graph
+            # | fraction_graph
+            # | whitelist_graph
         )
 
         if not deterministic:
