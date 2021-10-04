@@ -101,12 +101,12 @@ class ClassifyFstSmall(GraphFst):
 
             classify = (
                 pynutil.add_weight(whitelist_graph, 1.01)
-                # | pynutil.add_weight(decimal_graph, 1.1)
+                | pynutil.add_weight(decimal_graph, 1.1)
                 | pynutil.add_weight(measure_graph, 1.1)
-                # | pynutil.add_weight(cardinal_graph, 1.1)
+                | pynutil.add_weight(cardinal_graph, 1.1)
                 | pynutil.add_weight(money_graph, 1.1)
-                # | pynutil.add_weight(electronic_graph, 1.1)
-                # pynutil.add_weight(fraction_graph, 1.1)
+                | pynutil.add_weight(electronic_graph, 1.1)
+                | pynutil.add_weight(fraction_graph, 1.1)
                 | pynutil.add_weight(word_graph, 100)
             )
 
