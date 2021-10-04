@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from collections import defaultdict
-from typing import DefaultDict, List
+from typing import List
 
 from nemo.collections.nlp.data.text_normalization import constants
 from nemo.collections.nlp.data.text_normalization.utils import (

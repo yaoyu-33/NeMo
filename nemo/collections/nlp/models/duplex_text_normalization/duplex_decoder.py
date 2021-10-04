@@ -66,7 +66,7 @@ class DuplexDecoderModel(NLPModel):
 
         super().__init__(cfg=cfg, trainer=trainer)
         self.model = AutoModelForSeq2SeqLM.from_pretrained(cfg.transformer)
-        self.max_sequence_len = cfg.get('max_seq_length', self._tokenizer.model_max_length)
+        self.max_sequence_len = cfg.get('max_sequence_len', self._tokenizer.model_max_length)
         self.mode = cfg.get('mode', 'joint')
 
         self.transformer_name = cfg.transformer
@@ -164,10 +164,6 @@ class DuplexDecoderModel(NLPModel):
             class_name = self._val_id_to_class[dataloader_idx][class_id[0].item()]
             correct = torch.tensor(labels_str[idx] == generated_texts[idx], dtype=torch.int).to(self.device)
             if not correct:
-                if "11/780" in input_str[idx]:
-                    import pdb
-
-                    pdb.set_trace()
                 print(f"{class_name}\tInput\t{input_str[idx]}")
                 print(f"{class_name}\tCente\t{input_centers[idx]}")
                 print(f"{class_name}\tPREDI\t{generated_texts[idx]}")
