@@ -72,7 +72,8 @@ class TextNormalizationTaggerDataset(Dataset):
         data_dir, filename = os.path.split(input_file)
         tokenizer_name_normalized = tokenizer_name.replace('/', '_')
         cached_data_file = os.path.join(
-            data_dir, f'cached_tagger_{filename}_{tokenizer_name_normalized}_{lang}_{max_insts}_{max_seq_length}.pkl'
+            data_dir,
+            f'cached_tagger_{filename}_{tokenizer_name_normalized}_{lang}_{max_insts}_{max_seq_length}_{do_basic_tokenize}.pkl',
         )
 
         if use_cache and os.path.exists(cached_data_file):
@@ -205,9 +206,16 @@ class TaggerDataInstance:
         for w_word, s_word in zip(w_words, s_words):
             # Basic tokenization (if enabled)
             if do_basic_tokenize:
-                w_word = ' '.join(basic_tokenize(w_word, self.lang))
+                # w_word = ' '.join(basic_tokenize(w_word, self.lang))
+
+                from nemo.collections.common.tokenizers.moses_tokenizers import MosesProcessor
+
+                processor = MosesProcessor(lang_id="en")
+                w_word = processor.tokenize(w_word)
+
                 if not s_word in constants.SPECIAL_WORDS:
-                    s_word = ' '.join(basic_tokenize(s_word, self.lang))
+                    # s_word = ' '.join(basic_tokenize(s_word, self.lang))
+                    s_word = processor.tokenize(s_word)
             # Update input_words and labels
             if s_word == constants.SIL_WORD and direction == constants.INST_BACKWARD:
                 continue

@@ -145,7 +145,7 @@ class ClassifyFst(GraphFst):
                 | pynutil.add_weight(pynini.compose(time_graph, v_time_graph), 1.1)
                 | pynutil.add_weight(pynini.compose(decimal_graph, v_decimal_graph), 1.1)
                 | pynutil.add_weight(pynini.compose(measure_graph, v_measure_graph), 1.1)
-                | pynutil.add_weight(pynini.compose(cardinal_graph, v_cardinal_graph), 1.1)
+                |pynutil.add_weight(pynini.compose(cardinal_graph, v_cardinal_graph), 1.1)
                 | pynutil.add_weight(pynini.compose(ordinal_graph, v_ordinal_graph), 1.1)
                 | pynutil.add_weight(pynini.compose(telephone_graph, v_telephone_graph), 1.1)
                 | pynutil.add_weight(pynini.compose(electronic_graph, v_electronic_graph), 1.1)
@@ -154,6 +154,7 @@ class ClassifyFst(GraphFst):
                 | pynutil.add_weight(word_graph, 100)
                 | pynutil.add_weight(pynini.compose(date_graph, v_date_graph), 1.09)
             ).optimize()
+
 
             if not deterministic:
                 roman_graph = RomanFst(deterministic=deterministic).fst

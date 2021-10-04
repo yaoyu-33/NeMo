@@ -1,3 +1,7 @@
 123~123
 121,345~one two one three four five
 12345~one two three four five
+12 123~one two one two three
+2-ISBN-123-15412~two I S B N one two three one five four one two
+XVI~sixteen
+I~I
