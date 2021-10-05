@@ -18,4 +18,5 @@ from nemo_text_processing.text_normalization.en.taggers_small.electronic import 
 from nemo_text_processing.text_normalization.en.taggers_small.fraction import FractionFst
 from nemo_text_processing.text_normalization.en.taggers_small.measure import MeasureFst
 from nemo_text_processing.text_normalization.en.taggers_small.money import MoneyFst
+from nemo_text_processing.text_normalization.en.taggers_small.time import TimeFst
 from nemo_text_processing.text_normalization.en.taggers_small.whitelist import WhiteListFst

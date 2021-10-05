@@ -15,9 +15,9 @@
 
 
 from nemo_text_processing.text_normalization.en.graph_utils import (
-    NEMO_ALPHA,
     NEMO_DIGIT,
     NEMO_SIGMA,
+    NEMO_UPPER,
     GraphFst,
     insert_space,
 )
@@ -79,16 +79,16 @@ class CardinalFst(GraphFst):
             The serial is a combination of digits, letters and dashes, e.g.:
             c325-b -> "c three two five b"
         """
-        alpha = NEMO_ALPHA
+        alpha = NEMO_UPPER
         num_graph = self.single_digits_graph
 
-        delimiter = insert_space | pynini.cross("-", " ") | pynini.cross("/", " ")
+        delimiter = insert_space | pynini.cross("-", " ")
         letter_num = pynini.closure(alpha + delimiter, 1) + num_graph
         num_letter = pynini.closure(num_graph + delimiter, 1) + alpha
         num_delimiter_num = pynini.closure(num_graph + delimiter, 1) + num_graph
         next_alpha_or_num = pynini.closure(delimiter + (alpha | num_graph))
         serial_graph = (letter_num | num_letter | num_delimiter_num) + next_alpha_or_num
-        serial_graph = pynini.compose(NEMO_SIGMA + NEMO_ALPHA + NEMO_SIGMA, serial_graph)
+        serial_graph = pynini.compose(NEMO_SIGMA + NEMO_UPPER + NEMO_SIGMA, serial_graph)
         serial_graph.optimize()
         return pynutil.add_weight(serial_graph, 10)
 

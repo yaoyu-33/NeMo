@@ -108,7 +108,7 @@ class ClassifyFstSmall(GraphFst):
                 | pynutil.add_weight(money_graph, 1.1)
                 | pynutil.add_weight(time_graph, 1.1)
                 # | pynutil.add_weight(electronic_graph, 1.1)
-                # | pynutil.add_weight(fraction_graph, 1.1)
+                | pynutil.add_weight(fraction_graph, 1.1)
                 | pynutil.add_weight(word_graph, 100)
             )
 

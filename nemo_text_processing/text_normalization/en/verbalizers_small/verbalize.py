@@ -69,7 +69,7 @@ class VerbalizeFst(GraphFst):
             | cardinal_graph
             # | telephone_graph
             # | electronic_graph
-            # | fraction_graph
+            | fraction_graph
             # | whitelist_graph
         )
 

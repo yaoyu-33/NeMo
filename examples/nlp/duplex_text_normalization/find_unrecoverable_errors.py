@@ -27,9 +27,7 @@ input_file = sys.argv[
     1
 ]  # "/home/yzhang/code/NeMo/examples/nlp/duplex_text_normalization/errors_no_5_digit_electronic.txt"
 
-normalizer = NormalizerWithAudio(
-    input_case='cased', lang='en', cache_dir="cache_dir"
-)
+normalizer = NormalizerWithAudio(input_case='cased', lang='en', cache_dir="cache_dir")
 
 print('Processing: ', input_file)
 
@@ -45,7 +43,6 @@ def remove_punctuation(word: str, remove_spaces=True, do_lower=True):
     word = word.replace("zero", "o")
     if remove_spaces:
         word = word.replace(" ", "").replace(u"\u00A0", "").strip()
-
 
     if do_lower:
         word = word.lower()

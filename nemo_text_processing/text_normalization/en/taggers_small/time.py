@@ -58,7 +58,6 @@ class TimeFst(GraphFst):
         suffix_graph = pynini.string_file(get_abs_path("data/time_suffix.tsv"))
         time_zone_graph = pynini.string_file(get_abs_path("data/time_zone.tsv"))
 
-
         labels_hour = [str(x) for x in range(0, 24)]
         labels_minute_single = [str(x) for x in range(1, 10)]
         labels_minute_double = [str(x) for x in range(10, 60)]
