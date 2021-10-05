@@ -88,7 +88,7 @@ class CardinalFst(GraphFst):
         num_delimiter_num = pynini.closure(num_graph + delimiter, 1) + num_graph
         next_alpha_or_num = pynini.closure(delimiter + (alpha | num_graph))
         serial_graph = (letter_num | num_letter | num_delimiter_num) + next_alpha_or_num
-
+        serial_graph = pynini.compose(NEMO_SIGMA + NEMO_ALPHA + NEMO_SIGMA, serial_graph)
         serial_graph.optimize()
         return pynutil.add_weight(serial_graph, 10)
 
