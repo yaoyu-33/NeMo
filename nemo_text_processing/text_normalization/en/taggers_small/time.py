@@ -26,6 +26,9 @@ from nemo_text_processing.text_normalization.en.utils import get_abs_path
 try:
     import pynini
     from pynini.lib import pynutil
+    import inflect
+
+    p = inflect.engine()
 
     PYNINI_AVAILABLE = True
 except (ModuleNotFoundError, ImportError):
@@ -50,26 +53,25 @@ class TimeFst(GraphFst):
             for False multiple transduction are generated (used for audio-based normalization)
     """
 
-    def __init__(self, cardinal: GraphFst, deterministic: bool = True):
+    def __init__(self, deterministic: bool = True):
         super().__init__(name="time", kind="classify", deterministic=deterministic)
         suffix_graph = pynini.string_file(get_abs_path("data/time_suffix.tsv"))
         time_zone_graph = pynini.string_file(get_abs_path("data/time_zone.tsv"))
 
-        # only used for < 1000 thousand -> 0 weight
-        cardinal = cardinal.graph
 
         labels_hour = [str(x) for x in range(0, 24)]
         labels_minute_single = [str(x) for x in range(1, 10)]
         labels_minute_double = [str(x) for x in range(10, 60)]
+        card_normalized = pynini.string_map([(str(x), p.number_to_words(x)) for x in range(1, 60)])
 
         delete_leading_zero_to_double_digit = (NEMO_DIGIT + NEMO_DIGIT) | (
             pynini.closure(pynutil.delete("0"), 0, 1) + NEMO_DIGIT
         )
 
-        graph_hour = delete_leading_zero_to_double_digit @ pynini.union(*labels_hour) @ cardinal
+        graph_hour = delete_leading_zero_to_double_digit @ pynini.union(*labels_hour) @ card_normalized
 
-        graph_minute_single = pynini.union(*labels_minute_single) @ cardinal
-        graph_minute_double = pynini.union(*labels_minute_double) @ cardinal
+        graph_minute_single = pynini.union(*labels_minute_single) @ card_normalized
+        graph_minute_double = pynini.union(*labels_minute_double) @ card_normalized
 
         final_graph_hour = pynutil.insert("hours: \"") + graph_hour + pynutil.insert("\"")
         final_graph_minute = (
@@ -94,16 +96,16 @@ class TimeFst(GraphFst):
             1,
         )
 
-        # 2:30 pm, 02:30, 2:00
-        graph_hm = (
-            final_graph_hour
-            + pynutil.delete(":")
-            + (pynutil.delete("00") | insert_space + final_graph_minute)
-            + final_suffix_optional
-            + final_time_zone_optional
-        )
+        # # 2:30 pm, 02:30, 2:00
+        # graph_hm = (
+        #     final_graph_hour
+        #     + pynutil.delete(":")
+        #     + (pynutil.delete("00") | insert_space + final_graph_minute)
+        #     + final_suffix_optional
+        #     + final_time_zone_optional
+        # )
 
-        # 10:30:05 pm,
+        # # 10:30:05 pm,
         graph_hms = (
             final_graph_hour
             + pynutil.delete(":")
@@ -114,19 +116,19 @@ class TimeFst(GraphFst):
             + final_time_zone_optional
         )
 
-        # 2.xx pm/am
-        graph_hm2 = (
-            final_graph_hour
-            + pynutil.delete(".")
-            + (pynutil.delete("00") | insert_space + final_graph_minute)
-            + delete_space
-            + insert_space
-            + final_suffix
-            + final_time_zone_optional
-        )
-        # 2 pm est
-        graph_h = final_graph_hour + delete_space + insert_space + final_suffix + final_time_zone_optional
-        final_graph = (graph_hm | graph_h | graph_hm2 | graph_hms).optimize()
+        # # 2.xx pm/am
+        # graph_hm2 = (
+        #     final_graph_hour
+        #     + pynutil.delete(".")
+        #     + (pynutil.delete("00") | insert_space + final_graph_minute)
+        #     + delete_space
+        #     + insert_space
+        #     + final_suffix
+        #     + final_time_zone_optional
+        # )
+        # # 2 pm est
+        # graph_h = final_graph_hour + delete_space + insert_space + final_suffix + final_time_zone_optional
+        final_graph = graph_hms.optimize()
 
         final_graph = self.add_tokens(final_graph)
         self.fst = final_graph.optimize()
