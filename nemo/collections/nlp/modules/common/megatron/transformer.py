@@ -28,7 +28,6 @@ from nemo.collections.nlp.modules.common.megatron.fused_bias_gelu import FusedBi
 from nemo.collections.nlp.modules.common.megatron.fused_bias_dropout_add import \
         BiasDropoutAddFusedTrain, BiasDropoutAddFusedInference, bias_dropout_add
 from nemo.collections.nlp.modules.common.megatron.utils import attention_mask_func, erf_gelu
-from nemo.collections.nlp.modules.common.megatron.utils import dummy_handler
 
 
 """ We use the following notation throughout this file:
@@ -567,7 +566,13 @@ class ParallelTransformerLayer(ParallelTransformerLayer_):
     def __init__(self, **kargs):
         super(ParallelTransformerLayer, self).__init__(**kargs)
 
-        self.autocast_handler = torch.cuda.amp.autocast if (kargs['fused_fp16'] or kargs['fused_bf16']) else dummy_handler
+        assert not (kargs['fused_fp16'] and kargs['fused_bf16'])
+        if kargs['fused_fp16']:
+            self.dtype = torch.float16
+        elif kargs['fused_bf16']:
+            self.dtype = torch.bfloat16
+        else:
+            self.dtype = torch.float
 
     def forward(
             self,
@@ -579,9 +584,13 @@ class ParallelTransformerLayer(ParallelTransformerLayer_):
             get_key_value=False
     ):
 
-        with self.autocast_handler():
+        if self.dtype == torch.float:
             return super().forward(
                     hidden_states, attention_mask, encoder_output, enc_dec_attn_mask, layer_past, get_key_value)
+        else:
+            with torch.cuda.amp.autocast(dtype=self.dtype):
+                return super().forward(
+                        hidden_states, attention_mask, encoder_output, enc_dec_attn_mask, layer_past, get_key_value)
 
 
 class ParallelTransformer(MegatronModule):

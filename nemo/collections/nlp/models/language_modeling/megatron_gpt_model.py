@@ -59,7 +59,8 @@ class MegatronGPTModel(NLPModel):
             seed=self.cfg.get('seed', 1234),
         )
 
-        set_jit_fusion_options()
+        if not self.cfg.get('fused_bf16'):
+            set_jit_fusion_options()
 
         fused_kernels.load()
 
