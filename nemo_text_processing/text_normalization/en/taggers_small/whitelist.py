@@ -14,6 +14,7 @@
 # limitations under the License.
 
 from nemo_text_processing.text_normalization.en.graph_utils import GraphFst, convert_space
+from nemo_text_processing.text_normalization.en.taggers.whitelist import WhiteListFst as defaultWhiteListFst
 from nemo_text_processing.text_normalization.en.utils import get_abs_path, load_labels
 
 try:
@@ -45,36 +46,14 @@ class WhiteListFst(GraphFst):
     def __init__(self, input_case: str, deterministic: bool = True, input_file: str = None):
         super().__init__(name="whitelist", kind="classify", deterministic=deterministic)
 
-        def _get_whitelist_graph(input_case, file):
-            whitelist = load_labels(file)
-            if input_case == "lower_cased":
-                whitelist = [(x.lower(), y) for x, y in whitelist]
-            else:
-                whitelist = [(x, y) for x, y in whitelist]
-            graph = pynini.string_map(whitelist)
-            return graph
+        default_whitelist = defaultWhiteListFst(input_case=input_case)
+        whitelist_accepted = default_whitelist.whitelist_graph | default_whitelist.graph
 
-        def _get_whitelist_non_deterministic_graph(file="data/whitelist_alternatives.tsv"):
-            whitelist = load_labels(get_abs_path(file))
-            whitelist_lower = [(x.lower(), y.lower()) for x, y in whitelist]
-            whitelist_cased = [(x, y) for x, y in whitelist]
-            graph = pynini.string_map(whitelist_lower + whitelist_cased)
-            return graph
+        measure_units = pynini.string_file(get_abs_path("data/measurements.tsv"))
+        currency = pynini.string_file(get_abs_path("data/currency/currency.tsv"))
 
-        graph = _get_whitelist_graph(input_case, get_abs_path("data/whitelist.tsv"))
-        if not deterministic:
-            graph |= (
-                _get_whitelist_graph("lower_cased", get_abs_path("data/whitelist.tsv"))
-                | _get_whitelist_non_deterministic_graph()
-            )
+        # exclude words that are measure units or currency symbols
+        to_exclude = pynini.union(pynini.project(measure_units, "input"), pynini.project(currency, "input"))
+        filter = pynini.difference(pynini.project(whitelist_accepted, "input"), to_exclude).optimize()
 
-        if input_file:
-            whitelist_provided = _get_whitelist_graph(input_case, input_file)
-            if not deterministic:
-                graph |= whitelist_provided
-            else:
-                graph = whitelist_provided
-
-        self.whitelist_graph = graph
-        self.graph = (convert_space(graph)).optimize()
-        self.fst = (pynutil.insert("name: \"") + self.graph + pynutil.insert("\"")).optimize()
+        self.fst = pynini.compose(filter, default_whitelist.fst).optimize()
