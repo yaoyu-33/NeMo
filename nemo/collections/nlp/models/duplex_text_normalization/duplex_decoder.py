@@ -170,13 +170,13 @@ class DuplexDecoderModel(NLPModel):
                 generated_texts[idx], labels_str[idx], constants.DIRECTIONS_TO_MODE[direction]
             )
 
-            if not pred_result:
-                print()
-                print(f"{class_name}\tInput\t{input_str[idx]}")
-                print(f"{class_name}\tCente\t{input_centers[idx]}")
-                print(f"{class_name}\tPREDI\t{generated_texts[idx]}")
-                print(f"{class_name}\tTARGE\t{labels_str[idx]}")
-                print()
+            # if not pred_result:
+            #     print()
+            #     print(f"{class_name}\tInput\t{input_str[idx]}")
+            #     print(f"{class_name}\tCente\t{input_centers[idx]}")
+            #     print(f"{class_name}\tPREDI\t{generated_texts[idx]}")
+            #     print(f"{class_name}\tTARGE\t{labels_str[idx]}")
+            #     print()
 
             results[f"correct_{class_name}_{direction}"] += torch.tensor(pred_result, dtype=torch.int).to(self.device)
             results[f"total_{class_name}_{direction}"] += torch.tensor(1).to(self.device)
