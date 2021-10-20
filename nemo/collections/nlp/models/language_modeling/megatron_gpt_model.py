@@ -106,13 +106,13 @@ class MegatronGPTModel(NLPModel):
             onnx_safe=cfg.get('onnx_safe', False),
         )
 
-    def forward(self, tokens, position_ids, attention_mask, labels):
-        output_tensor = self.model(tokens, position_ids, attention_mask, labels=labels)
+    def forward(self, tokens, position_ids, attention_mask, labels, prompt_tags=None):
+        output_tensor = self.model(tokens, position_ids, attention_mask, labels=labels, prompt_tags=prompt_tags)
         return output_tensor
 
     def training_step(self, batch, batch_idx):
-        tokens, labels, loss_mask, attention_mask, position_ids = self.process_batch(batch)
-        output_tensor = self(tokens, position_ids, attention_mask, labels)
+        tokens, labels, loss_mask, attention_mask, position_ids, prompt_tags = self.process_batch(batch)
+        output_tensor = self(tokens, position_ids, attention_mask, labels, prompt_tags)
         loss = self.loss_func(loss_mask, output_tensor)
         self.log('train_loss', loss)
         # Reduced loss for logging.
@@ -125,8 +125,8 @@ class MegatronGPTModel(NLPModel):
         return loss
 
     def validation_step(self, batch, batch_idx):
-        tokens, labels, loss_mask, attention_mask, position_ids = self.process_batch(batch)
-        output_tensor = self(tokens, position_ids, attention_mask, labels)
+        tokens, labels, loss_mask, attention_mask, position_ids, prompt_tags = self.process_batch(batch)
+        output_tensor = self(tokens, position_ids, attention_mask, labels, prompt_tags)
         loss = self.loss_func(loss_mask, output_tensor)
         # TODO: add text generation
         # take the first k tokens and then generate text - compare with ground truth (won't look similar in general)
@@ -367,8 +367,28 @@ class MegatronGPTModel(NLPModel):
         response['completion']["text"] = self.tokenizer.ids_to_text(x[1] for x in response['completion']["tokens"])
         return response
 
+    def init_prompt_from_random(self, prompt_tag, prompt_length, init_method):
+        self.model._init_prompt_from_random(prompt_tag, prompt_length, init_method)
+        self._add_prompt_tag(prompt_tag)
+
+    def init_prompt_from_text(self, prompt_tag, init_text):
+        init_token_ids = self.tokenizer.text_to_ids(init_text)
+        self.model._init_prompt_from_text(prompt_tag, init_token_ids, init_position_ids)
+
+        self._add_prompt_tag(prompt_tag)
+
+    def load_tuned_prompts(self, prompt_table):
+        self.prompt_tags = set(prompt_table.keys())
+        self.model._load_tuned_prompts(prompt_table)
+
     def list_available_models():
         pass
+
+    def _add_prompt_tag(self, prompt_tag):
+        if not hasattr(self, "prompt_tags"):
+            self.prompt_tags = set([])
+
+        self.prompt_tags.add(prompt_tag)
 
     def _vocab_size_with_padding(self, orig_vocab_size, make_vocab_size_divisible_by, tensor_model_parallel_size):
         """Pad vocab size so it is divisible by model parallel size and

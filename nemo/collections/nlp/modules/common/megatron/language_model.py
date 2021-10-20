@@ -299,6 +299,59 @@ class Embedding(MegatronModule):
                     flush=True,
                 )
 
+class PromptEmbedding(MegatronModule):
+    """Prompt embeddings
+
+    Arugments:
+        init_from_prompt_text: Whether to intialize prompt embeddings
+                               from from certain lm embeddings 
+                               corresponding to a prompt string
+        hidden_size: hidden size should match lm embedding size
+        prompt_length: length of prompt initalized from torch init method
+        init_method: pytorch init method
+        embedding_weights: token embeddings from prompt text
+        prompt_embedding_dropout_prob: dropout probablity 
+    """
+
+    def __init__(
+        self,
+        init_from_prompt_text,
+        hidden_size,
+        prompt_length,
+        init_method,
+        embedding_weights=None,
+        prompt_embedding_dropout_prob=0.1
+    ):
+        super(PromptEmbedding, self).__init__()
+
+        self.hidden_size = hidden_size
+        self.prompt_length = prompt_length
+        self.prompt_embedding = tensor_parallel.VocabParallelEmbedding(
+                self.prompt_length, 
+                self.hidden_size, 
+                init_method=self.init_method, 
+        )
+
+        if init_from_prompt_text:
+            assert embedding_weights, "prompt text embeddings are needed to initalize the prompt"
+
+            # Set embedding weights to be embeddings from prompt tokens
+            # TODO: figure out how to do this
+            print(self.prompt_embedding.state_dict())
+            print(self.prompt_embedding.model_parameters())
+            self.prompt_embedding.weight = embedding_weights
+
+
+        self.embedding_dropout = torch.nn.Dropout(prompt_embedding_dropout_prob)
+        self.prompt_ids = [i for i in range(self.prompt_length)]
+        self._prompt_embeddings_key = "prompt_embeddings"
+
+    def forward(self):
+        prompt_embeddings = self.prompt_embeddings(self.prompt_ids)
+        prompt_embeddings = self.embedding_dropout(prompt_embeddings)
+
+        return prompt_embeddings
+
 
 class TransformerLanguageModel(MegatronModule):
     """Transformer language model.
@@ -455,6 +508,7 @@ class TransformerLanguageModel(MegatronModule):
         enc_input_ids,
         enc_position_ids,
         enc_attn_mask,
+        prompt_tags=None,
         dec_input_ids=None,
         dec_position_ids=None,
         dec_attn_mask=None,
@@ -469,7 +523,15 @@ class TransformerLanguageModel(MegatronModule):
         # Embeddings.
         if self.pre_process:
             embedding_output = self.embedding(enc_input_ids, enc_position_ids, tokentype_ids=tokentype_ids)
-            encoder_input = embedding_output
+
+            if prompt_tags:
+                prompt_embeddings = [self.prompt_table[tag] for tag in prompt_tags]
+                prompt_embeddings = torch.stack(prompt_embeddings)
+
+                encoder_input = torch.cat((prompt_embeddings, embedding_output), dim=1) 
+
+            else:
+                encoder_input = embedding_output
         else:
             encoder_input = None
 
@@ -580,3 +642,52 @@ class TransformerLanguageModel(MegatronModule):
         if self.add_decoder:
             assert 'decoder' in state_dict, 'could not find data for pooler in the checkpoint'
             self.decoder.load_state_dict(state_dict[self._decoder_key], strict=strict)
+
+    def _init_prompt_from_random(self, prompt_tag, prompt_length, init_method):
+        """Add new continous prompt to be tuned. 
+           Intialize prompt weights using pytorch init method
+
+        """
+
+        # Initalize prompt embeddings from a pytorch random init method
+        prompt_embeddings = PromptEmbedding(
+                                init_from_prompt_text = False, 
+                                hidden_size = self.hidden_size,
+                                prompt_length = prompt_length,
+                                init_method = init_method,
+                                )
+
+        if not hasattr(self, 'prompt_table'):
+            self.prompt_table = {}
+
+        self.prompt_table[tag] = prompt_embeddings
+
+    def _init_prompt_from_text(self, prompt_tag, init_token_ids, init_position_ids):
+        """Add new continous prompt to be tuned. 
+           Intialize prompt weights from existing embeddings from specific vocab tokens.
+
+        """
+        prompt_length = len(init_token_ids)
+
+        # Use a copy of token embedding weights to initalize the prompt embeddings
+        embedding_weights = self.embedding(init_token_ids, init_position_ids).detach().clone()
+        
+        prompt_embeddings = PromptEmbedding(
+                                init_from_prompt_text = True,
+                                hidden_size = self.hidden_size,
+                                prompt_length = prompt_length,
+                                init_method = init_method,
+                                embedding_weights = embedding_weights,
+                                )
+
+        if not hasattr(self, 'prompt_table'):
+            self.prompt_table = {}
+
+        self.prompt_table[tag] = prompt_embeddings
+
+    def _load_tuned_prompts(self, prompt_table):
+        self.prompt_table = prompt_table
+
+                                
+
+

@@ -143,6 +143,7 @@ class GPTModel(MegatronModule):
         input_ids,
         position_ids,
         attention_mask,
+        prompt_tags=None,
         labels=None,
         tokentype_ids=None,
         layer_past=None,
@@ -151,7 +152,7 @@ class GPTModel(MegatronModule):
     ):
 
         lm_output = self.language_model(
-            input_ids, position_ids, attention_mask, layer_past=layer_past, get_key_value=get_key_value
+            input_ids, position_ids, attention_mask, prompt_tags=prompt_tags, layer_past=layer_past, get_key_value=get_key_value
         )
 
         if self.post_process:
@@ -189,3 +190,13 @@ class GPTModel(MegatronModule):
         if self._language_model_key in state_dict:
             state_dict = state_dict[self._language_model_key]
         self.language_model.load_state_dict(state_dict, strict=strict)
+
+    def _init_prompt_from_random(self, prompt_tag, prompt_length, init_method):
+        self.language_model._init_prompt_from_random(prompt_tag, prompt_length, init_method)
+
+    def _init_prompt_from_text(self, prompt_tag, init_token_ids, init_position_ids):
+        self.language_model._init_prompt_from_text(prompt_tag, init_token_ids, init_position_ids)
+
+    def _load_tuned_prompts(self, prompt_table):
+        self.language_model._load_tuned_prompts(prompt_table)
+
