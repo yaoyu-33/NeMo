@@ -62,7 +62,7 @@ def main():
         app_state.model_parallel_rank = compute_model_parallel_rank(trainer.local_rank, app_state.model_parallel_size)
 
     model = MegatronGPTModel.restore_from(restore_path=args.model_file, trainer=trainer)
-    model.add_prompt_from_text("NER", init_text, model.tokenizer)
+    model.init_prompt_from_text("NER", init_text, model.tokenizer)
 
     request = {
         "prompt": args.prompt,

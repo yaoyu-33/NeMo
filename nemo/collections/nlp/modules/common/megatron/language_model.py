@@ -16,6 +16,7 @@
 
 import torch
 import torch.nn.functional as F
+from torch.nn.parameter import Parameter
 from apex.transformer import parallel_state, tensor_parallel
 from apex.transformer.enums import AttnMaskType, LayerType
 
@@ -329,18 +330,14 @@ class PromptEmbedding(MegatronModule):
         self.prompt_embedding = tensor_parallel.VocabParallelEmbedding(
                 self.prompt_length, 
                 self.hidden_size, 
-                init_method=self.init_method, 
+                init_method=init_method, 
         )
 
         if init_from_prompt_text:
-            assert embedding_weights, "prompt text embeddings are needed to initalize the prompt"
 
             # Set embedding weights to be embeddings from prompt tokens
-            # TODO: figure out how to do this
-            print(self.prompt_embedding.state_dict())
-            print(self.prompt_embedding.model_parameters())
-            self.prompt_embedding.weight = embedding_weights
-
+            # TODO: Need to somehow initalize these values with _initialize_affine_weight_gpu in apex
+            self.prompt_embedding.weight = Parameter(embedding_weights)
 
         self.embedding_dropout = torch.nn.Dropout(prompt_embedding_dropout_prob)
         self.prompt_ids = [i for i in range(self.prompt_length)]
@@ -660,7 +657,7 @@ class TransformerLanguageModel(MegatronModule):
         if not hasattr(self, 'prompt_table'):
             self.prompt_table = {}
 
-        self.prompt_table[tag] = prompt_embeddings
+        self.prompt_table[prompt_tag] = prompt_embeddings
 
     def _init_prompt_from_text(self, prompt_tag, init_token_ids, init_position_ids):
         """Add new continous prompt to be tuned. 
@@ -671,19 +668,20 @@ class TransformerLanguageModel(MegatronModule):
 
         # Use a copy of token embedding weights to initalize the prompt embeddings
         embedding_weights = self.embedding(init_token_ids, init_position_ids).detach().clone()
-        
+       
+        # Init method is just a place holder before setting values to embedding_weights
         prompt_embeddings = PromptEmbedding(
                                 init_from_prompt_text = True,
                                 hidden_size = self.hidden_size,
                                 prompt_length = prompt_length,
-                                init_method = init_method,
+                                init_method = torch.nn.init.normal_,
                                 embedding_weights = embedding_weights,
                                 )
 
         if not hasattr(self, 'prompt_table'):
             self.prompt_table = {}
 
-        self.prompt_table[tag] = prompt_embeddings
+        self.prompt_table[prompt_tag] = prompt_embeddings
 
     def _load_tuned_prompts(self, prompt_table):
         self.prompt_table = prompt_table

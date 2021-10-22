@@ -372,7 +372,10 @@ class MegatronGPTModel(NLPModel):
         self._add_prompt_tag(prompt_tag)
 
     def init_prompt_from_text(self, prompt_tag, init_text):
-        init_token_ids = self.tokenizer.text_to_ids(init_text)
+        # TODO:get device properly
+        device = torch.device("cuda")
+        init_token_ids = torch.tensor(self.tokenizer.text_to_ids(init_text)).to(device)
+        init_position_ids = torch.arange(len(init_token_ids), dtype=torch.long).to(device)
         self.model._init_prompt_from_text(prompt_tag, init_token_ids, init_position_ids)
 
         self._add_prompt_tag(prompt_tag)
