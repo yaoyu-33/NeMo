@@ -101,43 +101,30 @@ def get_segments(
     _print(ground_truth_mat, vocabulary)
     stride = 1/3.2
     """
-    """
+
+
     # works for sentences CitriNet
     from prepare_bpe import prepare_tokenized_text_nemo_works_modified
     # asr_model = "/home/ebakhturina/data/segmentation/models/ru/CitriNet-512-8x-Stride-Gamma-0.25-RU-e100_wer25.nemo"
     asr_model = "stt_en_citrinet_512_gamma_0_25"
     asr_model = "/home/ebakhturina/data/segmentation/models/de/best_stt_de_citrinet_1024.nemo"
     asr_model = "stt_en_citrinet_512_gamma_0_25"
+    asr_model = "stt_es_citrinet_512"
     stride = 1
     ground_truth_mat, utt_begin_indices, vocabulary = prepare_tokenized_text_nemo_works_modified(text, asr_model)
     _print(ground_truth_mat, vocabulary)
     """
 
-
-
-    # print(text[:2])
-    # import sys
-    # sys.path.append("/home/ebakhturina/misc_scripts/ctc_segmentation/LibriSpeech")
-    #
-    # from prepare_bpe2 import prepare_tokenized_text_nemo, prepare_tokenized_text, prepare_text
-    # ground_truth_mat, utt_begin_indices = prepare_text(text)
-
-    # from prepare_bpe import prepare_tokenized_text
-    # ground_truth_mat, utt_begin_indices = prepare_tokenized_text(text, vocabulary)
-    # text_repl = []
-    # for uttr in text:
-    #     text_repl.append(["▁" + t for t in uttr.split()])
-
     # QN
     from prepare_bpe import prepare_text_default, get_config_qn
     config = get_config_qn()
     config.min_window_size = window_size
-    config.index_duration = 0.02
+    config.index_duration = 0.019990723562152132 #0.02
     ground_truth_mat, utt_begin_indices = prepare_text_default(config, text)
     _print(ground_truth_mat, config.char_list)
     stride = 1
-
-    # import pdb; pdb.set_trace()
+    """
+    #
     logging.debug(f"Syncing {transcript_file}")
     logging.debug(
         f"Audio length {os.path.basename(path_wav)}: {log_probs.shape[0]}. "
@@ -146,7 +133,8 @@ def get_segments(
 
     timings, char_probs, char_list = cs.ctc_segmentation(config, log_probs, ground_truth_mat)
     segments = cs.determine_utterance_segments(config, utt_begin_indices, char_probs, timings, text)
-
+    # import pdb;
+    # pdb.set_trace()
     for i, (word, segment) in enumerate(zip(text, segments)):
         if i < 10:
             print(f"{segment[0]:.2f} {segment[1]:.2f} {segment[2]:3.4f} {word}")

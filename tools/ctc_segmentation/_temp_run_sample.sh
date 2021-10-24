@@ -2,19 +2,20 @@
 
 # default values for optional arguments
 MIN_SCORE=-100
-CUT_PREFIX=3
+CUT_PREFIX=0
 SCRIPTS_DIR="scripts"
 OFFSET=0
 LANGUAGE='eng' # 'eng', 'ru', 'other'
 MIN_SEGMENT_LEN=0
 MAX_SEGMENT_LEN=1
 ADDITIONAL_SPLIT_SYMBOLS=" "
-AUDIO_FORMAT='.mp3'
 USE_NEMO_NORMALIZATION='False'
 
-FOLDER="test"
-DATA_DIR="/home/ebakhturina/data/segmentation/${FOLDER}/data"
-MODEL_NAME_OR_PATH="QuartzNet15x5Base-En" #"stt_en_citrinet_512_gamma_0_25" #stt_en_citrinet_256 # "QuartzNet15x5Base-En" #
+FOLDER="spanish"
+#DATA_DIR="/home/ebakhturina/data/segmentation/${FOLDER}/data"
+
+DATA_DIR="/home/ebakhturina/data/ctc_segmentation/eng"
+MODEL_NAME_OR_PATH="stt_es_citrinet_512" #"stt_en_citrinet_512_gamma_0_25" #stt_en_citrinet_256 #  #"QuartzNet15x5Base-En" #
 OUTPUT_DIR="/home/ebakhturina/data/segmentation/${FOLDER}/out_${MODEL_NAME_OR_PATH}_2"
 
 #DATA_DIR="/mnt/sdb/DATA/youtube_mayank/YT/data"
@@ -45,7 +46,6 @@ echo "LANGUAGE = $LANGUAGE"
 echo "MIN_SEGMENT_LEN = $MIN_SEGMENT_LEN"
 echo "MAX_SEGMENT_LEN = $MAX_SEGMENT_LEN"
 echo "ADDITIONAL_SPLIT_SYMBOLS = $ADDITIONAL_SPLIT_SYMBOLS"
-echo "AUDIO_FORMAT = $AUDIO_FORMAT"
 echo "USE_NEMO_NORMALIZATION = $USE_NEMO_NORMALIZATION"
 
 #if [[ -z $MODEL_NAME_OR_PATH ]] || [[ -z $DATA_DIR ]] || [[ -z $OUTPUT_DIR ]]; then
@@ -78,7 +78,6 @@ NEMO_NORMALIZATION=""
 python $SCRIPTS_DIR/prepare_data.py \
 --in_text=$DATA_DIR/text \
 --audio_dir=$DATA_DIR/audio \
---audio_format=$AUDIO_FORMAT \
 --output_dir=$OUTPUT_DIR/processed/ \
 --language=$LANGUAGE \
 --cut_prefix=$CUT_PREFIX \
@@ -117,7 +116,6 @@ python $SCRIPTS_DIR/verify_segments.py \
 #   - deleted segments
 python $SCRIPTS_DIR/cut_audio.py \
 --output_dir=$OUTPUT_DIR \
---model=$MODEL_NAME_OR_PATH \
 --alignment=$OUTPUT_DIR/verified_segments \
 --threshold=$MIN_SCORE \
 --offset=$OFFSET || exit

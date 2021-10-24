@@ -22,7 +22,9 @@ from typing import List
 import regex
 import scipy.io.wavfile as wav
 from normalization_helpers import LATIN_TO_RU, RU_ABBREVIATIONS
+from nemo.collections.asr.models import ASRModel
 from num2words import num2words
+from nemo.utils import model_utils
 
 from nemo.collections import asr as nemo_asr
 
@@ -35,12 +37,9 @@ except (ModuleNotFoundError, ImportError):
 
 
 parser = argparse.ArgumentParser(description="Prepares text and audio files for segmentation")
-parser.add_argument("--in_text", type=str, default=None, help='Path to a text file or a directory with .txt files')
+parser.add_argument("--in_text", type=str, required=True, help='Path to a text file or a directory with .txt files')
 parser.add_argument("--output_dir", type=str, required=True, help='Path to output directory')
-parser.add_argument("--audio_dir", type=str, help='Path to folder with .mp3 or .wav audio files')
-parser.add_argument(
-    "--audio_format", type=str, default='.mp3', choices=['.mp3', '.wav'], help='Audio files format in --audio_dir'
-)
+parser.add_argument("--audio_dir", type=str, required=True, help='Path to folder with .mp3 or .wav audio files')
 parser.add_argument('--sample_rate', type=int, default=16000, help='Sampling rate used during ASR model training')
 parser.add_argument(
     '--language',
@@ -72,7 +71,6 @@ parser.add_argument(
     action='store_true',
     help='Set to True to use NeMo Normalization tool to convert numbers from written to spoken format.',
 )
-
 
 def convert_audio(in_file: str, wav_file: str = None, sample_rate: int = 16000) -> str:
     """
@@ -375,19 +373,18 @@ if __name__ == '__main__':
         if args.model is None:
             print(f"No model provided, vocabulary won't be used")
         elif os.path.exists(args.model):
-            asr_model = nemo_asr.models.EncDecCTCModel.restore_from(args.model)
-            vocabulary = asr_model.cfg.decoder.vocabulary
-        elif args.model in nemo_asr.models.EncDecCTCModel.get_available_model_names():
-            asr_model = nemo_asr.models.EncDecCTCModel.from_pretrained(args.model)
-            vocabulary = asr_model.cfg.decoder.vocabulary
+            model_cfg = ASRModel.restore_from(restore_path=args.model, return_config=True)
+            classpath = model_cfg.target  # original class path
+            imported_class = model_utils.import_class_by_path(classpath)  # type: ASRModel
+            print(f"Restoring model : {imported_class.__name__}")
+            asr_model = imported_class.restore_from(restore_path=args.model)  # type: ASRModel
+            model_name = os.path.splitext(os.path.basename(asr_model))[0]
         else:
-            try:
-                asr_model = nemo_asr.models.EncDecCTCModelBPE.from_pretrained(args.model)
-                vocabulary = asr_model.cfg.decoder.vocabulary
-            except:
-                raise ValueError(
-                    f'Provide path to the pretrained checkpoint or choose from {nemo_asr.models.EncDecCTCModel.get_available_model_names()}'
-                )
+            # restore model by name
+            asr_model = ASRModel.from_pretrained(model_name=args.model)  # type: ASRModel
+            model_name = args.model
+
+        vocabulary = asr_model.cfg.decoder.vocabulary
 
         if os.path.isdir(args.in_text):
             text_files = Path(args.in_text).glob(("*.txt"))
@@ -413,11 +410,12 @@ if __name__ == '__main__':
         if not os.path.exists(args.audio_dir):
             raise ValueError(f'{args.audio_dir} not found. "--audio_dir" should contain .mp3 or .wav files.')
 
-        audio_paths = list(Path(args.audio_dir).glob(f"*{args.audio_format}"))
+        audio_paths = list(Path(args.audio_dir).glob("*"))
+        assert len(set([os.path.splitext(x.name)[-1] for x in audio_paths]).difference(set([".wav", ".mp3"]))) == 0
 
         workers = []
         for i in range(len(audio_paths)):
-            wav_file = os.path.join(args.output_dir, audio_paths[i].name.replace(args.audio_format, ".wav"))
+            wav_file = os.path.join(args.output_dir, os.path.splitext(audio_paths[i].name)[0] + ".wav")
             worker = multiprocessing.Process(
                 target=process_audio, args=(audio_paths[i], wav_file, args.cut_prefix, args.sample_rate),
             )

@@ -34,12 +34,6 @@ parser.add_argument(
     help='Path to a data directory with alignments or a single .txt file with timestamps - result of the ctc-segmentation',
 )
 parser.add_argument("--threshold", type=float, default=-5, help='Minimum score value accepted')
-parser.add_argument(
-    '--model',
-    type=str,
-    default='QuartzNet15x5Base-En',
-    help='Path to model checkpoint or pre-trained CTC-based ASR model name',
-)
 parser.add_argument('--offset', type=int, default=0, help='Offset in seconds')
 parser.add_argument("--batch_size", type=int, default=64, help='Batch size for inference')
 
@@ -272,17 +266,17 @@ if __name__ == '__main__':
 
     os.makedirs(args.output_dir, exist_ok=True)
 
-    if os.path.exists(args.model):
-        asr_model = nemo_asr.models.EncDecCTCModel.restore_from(args.model, strict=False)
-    elif args.model in nemo_asr.models.EncDecCTCModel.get_available_model_names():
-        asr_model = nemo_asr.models.EncDecCTCModel.from_pretrained(args.model, strict=False)
-    else:
-        try:
-            asr_model = nemo_asr.models.EncDecCTCModelBPE.from_pretrained(args.model, strict=False)
-        except:
-            raise ValueError(
-                f'Provide path to the pretrained checkpoint or choose from {nemo_asr.models.EncDecCTCModel.list_available_models()}'
-            )
+    # if os.path.exists(args.model):
+    #     asr_model = nemo_asr.models.EncDecCTCModel.restore_from(args.model, strict=False)
+    # elif args.model in nemo_asr.models.EncDecCTCModel.get_available_model_names():
+    #     asr_model = nemo_asr.models.EncDecCTCModel.from_pretrained(args.model, strict=False)
+    # else:
+    #     try:
+    #         asr_model = nemo_asr.models.EncDecCTCModelBPE.from_pretrained(args.model, strict=False)
+    #     except:
+    #         raise ValueError(
+    #             f'Provide path to the pretrained checkpoint or choose from {nemo_asr.models.EncDecCTCModel.list_available_models()}'
+    #         )
 
     alignment_files = Path(args.alignment)
     if os.path.isdir(args.alignment):

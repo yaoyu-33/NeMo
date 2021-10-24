@@ -151,7 +151,7 @@ class DuplexDecoderModel(NLPModel):
         )
 
         input_centers = self._tokenizer.batch_decode(batch['input_center'], skip_special_tokens=True)
-
+        input_str = self._tokenizer.batch_decode(batch['input_ids'], skip_special_tokens=True)
         direction = [x[0].item() for x in batch['direction']]
         direction_str = [constants.DIRECTIONS_ID_TO_NAME[x] for x in direction]
         # apply post_processing
@@ -160,10 +160,17 @@ class DuplexDecoderModel(NLPModel):
         for idx, class_id in enumerate(batch['semiotic_class_id']):
             direction = constants.TASK_ID_TO_MODE[batch['direction'][idx][0].item()]
             class_name = self._val_id_to_class[dataloader_idx][class_id[0].item()]
-
             pred_result = TextNormalizationTestDataset.is_same(
                 generated_texts[idx], labels_str[idx], constants.DIRECTIONS_TO_MODE[direction]
             )
+
+            if not pred_result:
+                print()
+                print(f"{class_name}\tInput\t{input_str[idx]}")
+                print(f"{class_name}\tCente\t{input_centers[idx]}")
+                print(f"{class_name}\tPREDI\t{generated_texts[idx]}")
+                print(f"{class_name}\tTARGE\t{labels_str[idx]}")
+                print()
 
             results[f"correct_{class_name}_{direction}"] += torch.tensor(pred_result, dtype=torch.int).to(self.device)
             results[f"total_{class_name}_{direction}"] += torch.tensor(1).to(self.device)

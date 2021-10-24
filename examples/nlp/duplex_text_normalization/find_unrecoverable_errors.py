@@ -15,6 +15,7 @@
 import re
 import string
 import sys
+from tqdm import tqdm
 
 try:
     from nemo_text_processing.text_normalization.normalize_with_audio import NormalizerWithAudio
@@ -60,7 +61,7 @@ acceptable_error = 0
 example = []
 with open(input_file.replace(".txt", "_reduced.txt"), 'w') as f_out:
     with open(input_file, 'r') as f:
-        for line in f:
+        for line in tqdm(f):
             if not line:
                 continue
             example.append(line[::-1][: line[::-1].find('\t')].strip()[::-1])
@@ -90,11 +91,12 @@ with open(input_file.replace(".txt", "_reduced.txt"), 'w') as f_out:
                         f_out.write(line[: line.find('\t')].strip() + '\t' + "Cente" + '\t' + example[1] + '\n')
                         f_out.write(line[: line.find('\t')].strip() + '\t' + "PREDI" + '\t' + example[2] + '\n')
                         f_out.write(line[: line.find('\t')].strip() + '\t' + "TARGE" + '\t' + example[3] + '\n')
+                        f_out.write("-" * 40 + "\n")
                         wrong += 1
 
                 example = []
 
-                print(f"acceptable_error {acceptable_error}, nonacc {wrong}")
+                # print(f"acceptable_error {acceptable_error}, nonacc {wrong}")
 print(f'original wrong: {original_wrong}')
 print(f'wrong: {wrong}')
 print(f'no punct correct: {correct_with_no_punct}')

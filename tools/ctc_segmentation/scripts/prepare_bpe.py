@@ -153,8 +153,9 @@ def get_words(fpath, tokenizer):
     return words
 
 
-def prepare_text_default(config, text, char_list=None):
+def prepare_text_default(config, text, qn=True, char_list=None):
     # temporary compatibility fix for previous espnet versions
+
     config.replace_spaces_with_blanks = True
     if type(config.blank) == str:
         config.blank = 0
@@ -184,12 +185,11 @@ def prepare_text_default(config, text, char_list=None):
     print(f"ground_truth: {ground_truth}")
     utt_begin_indices.append(len(ground_truth) - 1)
     # Create matrix: time frame x number of letters the character symbol spans
-    # qn = False
-    # max_char_len = max([len(c) for c in config.char_list])
-
     # for QN:
-    qn = True
-    max_char_len = 2
+    if qn:
+        max_char_len = 2
+    else:
+        max_char_len = max([len(c) for c in config.char_list])
 
     ground_truth_mat = np.ones([len(ground_truth), max_char_len], np.int64) * -1
     for i in range(len(ground_truth)):
@@ -201,10 +201,19 @@ def prepare_text_default(config, text, char_list=None):
             # if 'ri' in span:
             # print(span)
             if span == config.space:
-                span = span.replace(config.space, blank)
-                char_index = config.char_list.index(span)
-                ground_truth_mat[i, s] = char_index
-                ground_truth_mat[i, s+1] = config.char_list.index(config.space)
+                if not qn:
+                    span = span.replace(config.space, blank)
+                    char_index = config.char_list.index(span)
+                    ground_truth_mat[i, s] = char_index
+                    ground_truth_mat[i, s+1] = config.char_list.index(config.space)
+                else:
+                    char_index = config.char_list.index(span)
+                    ground_truth_mat[i, s] = char_index
+                    # import pdb; pdb.set_trace()
+                    # if (i+1) not in utt_begin_indices:
+                    #     ground_truth_mat[i, s + 1] = config.blank
+                # import pdb; pdb.set_trace()
+                # print()
             # if span in config.char_list:
             #     char_index = config.char_list.index(span)
             #     ground_truth_mat[i, s] = char_index
@@ -213,7 +222,7 @@ def prepare_text_default(config, text, char_list=None):
                     char_index = config.char_list.index(config.tokenized_meta_symbol + span)
                     ground_truth_mat[i, s] = char_index
                 elif span.startswith(config.space) and span[1:] in config.char_list:
-                    # import pdb; pdb.set_trace()
+                    import pdb; pdb.set_trace()
                     char_index = config.char_list.index(span[1:])
                     ground_truth_mat[i, s] = char_index
             elif qn and span in config.char_list:
