@@ -169,7 +169,7 @@ def prepare_text_default(config, text, qn=True, char_list=None):
         if not ground_truth.endswith(config.space):
             ground_truth += config.space
         # Start new utterance remember index
-        utt_begin_indices.append(len(ground_truth))
+        utt_begin_indices.append(len(ground_truth)-1)
         # Add chars of utterance
         for char in utt:
             # if char.isspace() and config.replace_spaces_with_blanks:
@@ -228,7 +228,7 @@ def prepare_text_default(config, text, qn=True, char_list=None):
             elif qn and span in config.char_list:
                 char_index = config.char_list.index(span)
                 ground_truth_mat[i, s] = char_index
-
+    import pdb; pdb.set_trace()
     return ground_truth_mat, utt_begin_indices
 
 

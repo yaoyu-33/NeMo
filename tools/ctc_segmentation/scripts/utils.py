@@ -102,14 +102,14 @@ def get_segments(
     stride = 1/3.2
     """
 
-
+    """
     # works for sentences CitriNet
     from prepare_bpe import prepare_tokenized_text_nemo_works_modified
     # asr_model = "/home/ebakhturina/data/segmentation/models/ru/CitriNet-512-8x-Stride-Gamma-0.25-RU-e100_wer25.nemo"
+    # asr_model = "stt_en_citrinet_512_gamma_0_25"
+    # asr_model = "/home/ebakhturina/data/segmentation/models/de/best_stt_de_citrinet_1024.nemo"
     asr_model = "stt_en_citrinet_512_gamma_0_25"
-    asr_model = "/home/ebakhturina/data/segmentation/models/de/best_stt_de_citrinet_1024.nemo"
-    asr_model = "stt_en_citrinet_512_gamma_0_25"
-    asr_model = "stt_es_citrinet_512"
+    # asr_model = "stt_es_citrinet_512"
     stride = 1
     ground_truth_mat, utt_begin_indices, vocabulary = prepare_tokenized_text_nemo_works_modified(text, asr_model)
     _print(ground_truth_mat, vocabulary)
@@ -123,7 +123,7 @@ def get_segments(
     ground_truth_mat, utt_begin_indices = prepare_text_default(config, text)
     _print(ground_truth_mat, config.char_list)
     stride = 1
-    """
+
     #
     logging.debug(f"Syncing {transcript_file}")
     logging.debug(
