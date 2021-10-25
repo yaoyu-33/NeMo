@@ -21,6 +21,7 @@ from typing import List, Tuple, Union
 
 import ctc_segmentation as cs
 import numpy as np
+from nemo.collections.common.tokenizers.sentencepiece_tokenizer import SentencePieceTokenizer
 
 
 def get_segments(
@@ -29,8 +30,10 @@ def get_segments(
     transcript_file: Union[PosixPath, str],
     output_file: str,
     vocabulary: List[str],
+    tokenizer: SentencePieceTokenizer,
+    asr_model_name: str,
+    index_duration: float,
     window_size: int = 8000,
-    frame_duration_ms: int = 10,
 ) -> None:
     """
     Segments the audio into segments and saves segments timings to a file
@@ -41,15 +44,16 @@ def get_segments(
         path_wav: path to the audio .wav file
         transcript_file: path to
         output_file: path to the file to save timings for segments
-        vocabulary: vocabulary used to train the ASR model, note blank is at position 0
+        vocabulary: vocabulary used to train the ASR model, note blank is at position len(vocabulary) - 1
+        tokenizer: ASR model tokenizer (for BPE models, None for Quartznet)
+        asr_model_name: name of the CTC-based ASR model
         window_size: the length of each utterance (in terms of frames of the CTC outputs) fits into that window.
-        frame_duration_ms: frame duration in ms
+        index_duration: corresponding time duration of one CTC output index (in seconds)
     """
-    print('log_probs:', log_probs.shape)
     config = cs.CtcSegmentationParameters()
     config.char_list = vocabulary
     config.min_window_size = window_size
-    config.index_duration = 0.0799983368347339
+    config.index_duration = index_duration # 0.0799983368347339
     config.blank = len(vocabulary) - 1
     # config.space = "▁"
 
@@ -81,50 +85,22 @@ def get_segments(
     if len(text_normalized) != len(text):
         raise ValueError(f'{transcript_file} and {transcript_file_normalized} do not match')
 
-    # words = []
-    # for t in text:
-    #     words.extend(t.split())
-    # text = words
-    # text_normalized = words
-    # text_no_preprocessing = words
 
-    """
-    # 10/11
-    # make words
-    from prepare_bpe import prepare_text_default, get_config
-    config, tokenizer = get_config()
-    vocabulary = config.char_list
-    text_processed = []
-    for i in range(len(text)):
-        text_processed.append(" ".join(["▁" + x for x in text[i].split()]))
-    ground_truth_mat, utt_begin_indices = prepare_text_default(config, text_processed)
-    _print(ground_truth_mat, vocabulary)
-    stride = 1/3.2
-    """
-
-    """
     # works for sentences CitriNet
     from prepare_bpe import prepare_tokenized_text_nemo_works_modified
-    # asr_model = "/home/ebakhturina/data/segmentation/models/ru/CitriNet-512-8x-Stride-Gamma-0.25-RU-e100_wer25.nemo"
-    # asr_model = "stt_en_citrinet_512_gamma_0_25"
-    # asr_model = "/home/ebakhturina/data/segmentation/models/de/best_stt_de_citrinet_1024.nemo"
-    asr_model = "stt_en_citrinet_512_gamma_0_25"
-    # asr_model = "stt_es_citrinet_512"
-    stride = 1
-    ground_truth_mat, utt_begin_indices, vocabulary = prepare_tokenized_text_nemo_works_modified(text, asr_model)
+    ground_truth_mat, utt_begin_indices = prepare_tokenized_text_nemo_works_modified(text, tokenizer, vocabulary)
     _print(ground_truth_mat, vocabulary)
-    """
 
+    """
     # QN
     from prepare_bpe import prepare_text_default, get_config_qn
     config = get_config_qn()
     config.min_window_size = window_size
-    config.index_duration = 0.019990723562152132 #0.02
+    config.index_duration = index_duration 
     ground_truth_mat, utt_begin_indices = prepare_text_default(config, text)
     _print(ground_truth_mat, config.char_list)
-    stride = 1
+    """
 
-    #
     logging.debug(f"Syncing {transcript_file}")
     logging.debug(
         f"Audio length {os.path.basename(path_wav)}: {log_probs.shape[0]}. "
@@ -133,13 +109,12 @@ def get_segments(
 
     timings, char_probs, char_list = cs.ctc_segmentation(config, log_probs, ground_truth_mat)
     segments = cs.determine_utterance_segments(config, utt_begin_indices, char_probs, timings, text)
-    # import pdb;
-    # pdb.set_trace()
+
     for i, (word, segment) in enumerate(zip(text, segments)):
         if i < 10:
             print(f"{segment[0]:.2f} {segment[1]:.2f} {segment[2]:3.4f} {word}")
 
-    write_output(output_file, path_wav, segments, text, text_no_preprocessing, text_normalized, stride)
+    write_output(output_file, path_wav, segments, text, text_no_preprocessing, text_normalized)
 
 
 def _print(ground_truth_mat, vocabulary):
@@ -159,8 +134,7 @@ def write_output(
     segments: List[Tuple[float]],
     text: str,
     text_no_preprocessing: str,
-    text_normalized: str,
-    stride: float = 1,
+    text_normalized: str
 ):
     """
     Write the segmentation output to a file
@@ -171,7 +145,6 @@ def write_output(
     text: Text used for alignment
     text_no_preprocessing: Reference txt without any pre-processing
     text_normalized: Reference text normalized
-    stride: Stride applied to an ASR input
     """
     # Uses char-wise alignments to get utterance-wise alignments and writes them into the given file
     with open(str(out_path), "w") as outfile:
@@ -179,7 +152,7 @@ def write_output(
 
         for i, (start, end, score) in enumerate(segments):
             outfile.write(
-                f'{start/stride} {end/stride} {score} | {text[i]} | {text_no_preprocessing[i]} | {text_normalized[i]}\n'
+                f'{start} {end} {score} | {text[i]} | {text_no_preprocessing[i]} | {text_normalized[i]}\n'
             )
 
 

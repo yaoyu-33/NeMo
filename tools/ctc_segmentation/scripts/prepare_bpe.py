@@ -55,15 +55,8 @@ def prepare_tokenized_text_nemo_works(text, asr_model):
     return ground_truth_mat, utt_begin_indices, vocabulary
 
 
-def prepare_tokenized_text_nemo_works_modified(text, asr_model):
+def prepare_tokenized_text_nemo_works_modified(text, tokenizer, vocabulary):
     """ WIP """
-    """ WORKS DO NOT CHANGE"""
-    try:
-        asr_model = nemo_asr.models.EncDecCTCModelBPE.from_pretrained(asr_model)
-    except:
-        asr_model = nemo_asr.models.EncDecCTCModelBPE.restore_from(asr_model)
-    vocabulary = list(asr_model.cfg.decoder.vocabulary) + ["ε"]
-    tokenizer = asr_model.tokenizer
     space_idx = vocabulary.index("▁")
     blank_idx = len(vocabulary) - 1
 
@@ -79,7 +72,7 @@ def prepare_tokenized_text_nemo_works_modified(text, asr_model):
     ground_truth_mat += [[blank_idx, space_idx]]
     print(ground_truth_mat)
     ground_truth_mat = np.array(ground_truth_mat, np.int64)
-    return ground_truth_mat, utt_begin_indices, vocabulary
+    return ground_truth_mat, utt_begin_indices
 
 
 def prepare_tokenized_text(text, vocabulary):
@@ -228,7 +221,6 @@ def prepare_text_default(config, text, qn=True, char_list=None):
             elif qn and span in config.char_list:
                 char_index = config.char_list.index(span)
                 ground_truth_mat[i, s] = char_index
-    import pdb; pdb.set_trace()
     return ground_truth_mat, utt_begin_indices
 
 
@@ -236,11 +228,6 @@ def get_config():
     asr_model = nemo_asr.models.EncDecCTCModelBPE.from_pretrained("stt_en_citrinet_512_gamma_0_25")
     vocabulary = list(asr_model.cfg.decoder.vocabulary) + ["ε"]
     tokenizer = asr_model.tokenizer
-    # for i in range(len(vocabulary) - 1):
-    #     if not vocabulary[i].startswith("##"):
-    #         vocabulary[i] = "▁" + vocabulary[i]
-    #     else:
-    #         vocabulary[i] = vocabulary[i].replace("##", "")
 
     config = cs.CtcSegmentationParameters()
     config.char_list = vocabulary

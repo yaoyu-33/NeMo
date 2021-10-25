@@ -25,7 +25,7 @@ from normalization_helpers import LATIN_TO_RU, RU_ABBREVIATIONS
 from nemo.collections.asr.models import ASRModel
 from num2words import num2words
 from nemo.utils import model_utils
-
+from nemo.collections.asr.parts.preprocessing.segment import AudioSegment
 from nemo.collections import asr as nemo_asr
 
 try:
@@ -108,8 +108,8 @@ def process_audio(in_file: str, wav_file: str = None, cut_prefix: int = 0, sampl
 
     if cut_prefix > 0:
         # cut a few seconds of audio from the beginning
-        sample_rate, signal = wav.read(wav_audio)
-        wav.write(wav_audio, data=signal[cut_prefix * sample_rate :], rate=sample_rate)
+        audio = AudioSegment.from_file(in_file, offset=cut_prefix)
+        wav.write(wav_audio, data=audio._samples, rate=sample_rate)
 
 
 def split_text(
@@ -364,7 +364,6 @@ def split_text(
 
 if __name__ == '__main__':
     args = parser.parse_args()
-
     os.makedirs(args.output_dir, exist_ok=True)
 
     text_files = []

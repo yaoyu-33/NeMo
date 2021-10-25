@@ -75,6 +75,12 @@ if __name__ == '__main__':
                 f'Provide path to the pretrained checkpoint or choose from {nemo_asr.models.EncDecCTCModel.get_available_model_names()}'
             )
 
+    # get tokenizer used during training, None for Quartznet models
+    try:
+        tokenizer = asr_model.tokenizer
+    except:
+        tokenizer = None
+
     # extract ASR vocabulary and add blank symbol
     vocabulary = list(asr_model.cfg.decoder.vocabulary) + ["ε"]
     logging.debug(f'ASR Model vocabulary: {vocabulary}')
@@ -117,11 +123,6 @@ if __name__ == '__main__':
         print(f'len(signal): {len(signal)}, sr: {sample_rate}')
         logging.debug(f'Duration: {original_duration}s, file_name: {path_audio}')
         log_probs = asr_model.transcribe(paths2audio_files=[str(path_audio)], batch_size=1, logprobs=True)[0]
-        # [print(vocabulary[np.argmax(log_probs[i])]) for i in range(200)]
-        # import pdb; pdb.set_trace()
-        # move blank values to the first column
-        # blank_col = log_probs[:, -1].reshape((log_probs.shape[0], 1))
-        # log_probs = np.concatenate((blank_col, log_probs[:, :-1]), axis=1)
 
         all_log_probs.append(log_probs)
         all_segment_file.append(str(segment_file))
@@ -134,6 +135,7 @@ if __name__ == '__main__':
     if len(all_log_probs) == 0:
         raise ValueError(f'No valid audio files found at {args.data}')
     start_time = time.time()
+    index_duration = len(signal) / log_probs.shape[0] / sample_rate
     if args.no_parallel:
         for i in range(len(all_log_probs)):
             get_segments(
@@ -142,6 +144,9 @@ if __name__ == '__main__':
                 all_transcript_file[i],
                 all_segment_file[i],
                 vocabulary,
+                tokenizer,
+                args.model,
+                index_duration,
                 args.window_len,
             )
     else:
@@ -162,6 +167,9 @@ if __name__ == '__main__':
                     all_transcript_file[i],
                     all_segment_file[i],
                     vocabulary,
+                    tokenizer,
+                    args.model,
+                    index_duration,
                     args.window_len,
                 ),
             )

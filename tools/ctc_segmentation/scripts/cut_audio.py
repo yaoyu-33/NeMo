@@ -196,18 +196,6 @@ def process_alignment(alignment_file: str, args):
                     json.dump(info, file_to_write, ensure_ascii=False)
                     file_to_write.write('\n')
 
-    # add_transcript_to_manifest(
-    #     os.path.join(tmp_dir, high_score_manifest),
-    #     os.path.join(manifests_dir, high_score_manifest),
-    #     asr_model,
-    #     args.batch_size,
-    # )
-    # add_transcript_to_manifest(
-    #     os.path.join(tmp_dir, low_score_manifest),
-    #     os.path.join(manifests_dir, low_score_manifest),
-    #     asr_model,
-    #     args.batch_size,
-    # )
     print(f'High score files duration: {round(high_score_dur)}s or ~{round(high_score_dur/60)}min at {manifests_dir}')
     print(
         f'Low score files duration: {round(low_score_dur)}s or ~{round(low_score_dur/60)}min saved at {manifests_dir}'
@@ -265,18 +253,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     os.makedirs(args.output_dir, exist_ok=True)
-
-    # if os.path.exists(args.model):
-    #     asr_model = nemo_asr.models.EncDecCTCModel.restore_from(args.model, strict=False)
-    # elif args.model in nemo_asr.models.EncDecCTCModel.get_available_model_names():
-    #     asr_model = nemo_asr.models.EncDecCTCModel.from_pretrained(args.model, strict=False)
-    # else:
-    #     try:
-    #         asr_model = nemo_asr.models.EncDecCTCModelBPE.from_pretrained(args.model, strict=False)
-    #     except:
-    #         raise ValueError(
-    #             f'Provide path to the pretrained checkpoint or choose from {nemo_asr.models.EncDecCTCModel.list_available_models()}'
-    #         )
 
     alignment_files = Path(args.alignment)
     if os.path.isdir(args.alignment):

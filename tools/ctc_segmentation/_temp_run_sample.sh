@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # default values for optional arguments
-MIN_SCORE=-100
+MIN_SCORE=-5
 CUT_PREFIX=0
 SCRIPTS_DIR="scripts"
 OFFSET=0
@@ -15,7 +15,8 @@ FOLDER="spanish"
 #DATA_DIR="/home/ebakhturina/data/segmentation/${FOLDER}/data"
 
 DATA_DIR="/home/ebakhturina/data/ctc_segmentation/eng"
-MODEL_NAME_OR_PATH="QuartzNet15x5Base-En" #"stt_en_citrinet_512_gamma_0_25" #stt_en_citrinet_256  #
+#DATA_DIR="/home/ebakhturina/data/segmentation/test/data"
+MODEL_NAME_OR_PATH="stt_en_conformer_ctc_large" #"stt_en_citrinet_512_gamma_0_25" #stt_en_citrinet_256  #
 OUTPUT_DIR="/home/ebakhturina/data/segmentation/${FOLDER}/out_${MODEL_NAME_OR_PATH}_2"
 
 #DATA_DIR="/mnt/sdb/DATA/youtube_mayank/YT/data"
