@@ -70,7 +70,6 @@ def main(cfg: DictConfig) -> None:
     decoder_model.max_sequence_len = 512
     tagger_model.max_sequence_len = 512
     tn_model = DuplexTextNormalizationModel(tagger_model, decoder_model, lang)
-
     if cfg.inference.get("from_file", False):
         text_file = cfg.inference.from_file
         logging.info(f'Running inference on {text_file}...')

@@ -20,7 +20,6 @@ import sys
 import time
 from pathlib import Path
 
-import numpy as np
 import scipy.io.wavfile as wav
 import torch
 from utils import get_segments, listener_configurer, listener_process, worker_configurer, worker_process

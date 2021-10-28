@@ -205,6 +205,7 @@ class TextNormalizationDecoderDataset(Dataset):
             input_len = len(_input['input_ids'][0])
             if input_len > self.max_seq_len:
                 long_examples_filtered += 1
+                input_max_len = max(input_max_len, input_len)
                 continue
 
             # Target
@@ -212,6 +213,7 @@ class TextNormalizationDecoderDataset(Dataset):
             target_len = len(_target['input_ids'][0])
             if target_len > self.max_seq_len:
                 long_examples_filtered += 1
+                target_max_len = max(target_max_len, target_len)
                 continue
 
             # Update
@@ -226,9 +228,8 @@ class TextNormalizationDecoderDataset(Dataset):
                 self.tn_count += 1
             if inputs[idx].startswith(constants.ITN_PREFIX):
                 self.itn_count += 1
-            input_max_len = max(input_max_len, input_len)
-            target_max_len = max(target_max_len, target_len)
-        logging.info(f'long_examples_filtered: {long_examples_filtered}')
+
+        logging.info(f'long_examples_filtered: {long_examples_filtered} based on max_seq_len: {self.max_seq_len}')
         logging.info(f'input_max_len: {input_max_len} | target_max_len: {target_max_len}')
 
         # we need to pad input_center, so we first collect all values, and then batch_tokenize with padding

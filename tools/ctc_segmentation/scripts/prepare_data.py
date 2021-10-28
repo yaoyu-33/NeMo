@@ -26,7 +26,6 @@ from nemo.collections.asr.models import ASRModel
 from num2words import num2words
 from nemo.utils import model_utils
 from nemo.collections.asr.parts.preprocessing.segment import AudioSegment
-from nemo.collections import asr as nemo_asr
 
 try:
     from nemo_text_processing.text_normalization.normalize import Normalizer
@@ -44,8 +43,8 @@ parser.add_argument('--sample_rate', type=int, default=16000, help='Sampling rat
 parser.add_argument(
     '--language',
     type=str,
-    default='eng',
-    choices=['eng', 'ru', 'de', 'es', 'other'],
+    default='en',
+    choices=['en', 'ru', 'de', 'es', 'other'],
     help='Add target language based on the num2words list of supported languages',
 )
 parser.add_argument(
@@ -174,7 +173,7 @@ def split_text(
     if language == 'ru':
         lower_case_unicode = '\u0430-\u04FF'
         upper_case_unicode = '\u0410-\u042F'
-    elif language not in ['ru', 'eng']:
+    elif language not in ['ru', 'en']:
         print(f'Consider using {language} unicode letters for better sentence split.')
 
     # remove space in the middle of the lower case abbreviation to avoid splitting into separate sentences
@@ -232,12 +231,19 @@ def split_text(
 
     sentences = additional_split(sentences, additional_split_symbols, max_length)
 
-    # check to make sure there will be no utterances for segmentation with only OOV symbols
-    # vocabulary = "A, E, I, O, U, B, C, D, F, G, H, J, K, L, M, N, P, Q, R, S, T, V, X, Z, W,Y,'"
-    # vocabulary += vocabulary.lower()
-    # vocabulary = list(vocabulary)
+    if language == 'en':
+        vocabulary_symbols = "A, E, I, O, U, B, C, D, F, G, H, J, K, L, M, N, P, Q, R, S, T, V, X, Z, W, Y"
+        vocabulary_symbols += vocabulary_symbols.lower()
+        vocabulary_symbols = list(vocabulary_symbols)
+    else:
+        vocabulary_symbols = []
+        for x in vocabulary:
+            if x != '<unk>':
+                vocabulary_symbols.extend([x for x in x.replace("##", "").replace("▁", "")])
+        vocabulary_symbols = list(set(vocabulary_symbols))
 
-    vocab_no_space_with_digits = set(vocabulary + [i for i in range(10)])
+    # check to make sure there will be no utterances for segmentation with only OOV symbols
+    vocab_no_space_with_digits = set(vocabulary_symbols + [i for i in range(10)])
     if " " in vocab_no_space_with_digits:
         vocab_no_space_with_digits.remove(' ')
     sentences = [s for s in sentences if len(vocab_no_space_with_digits.intersection(set(s))) > 0]
@@ -270,7 +276,7 @@ def split_text(
         for k, v in LATIN_TO_RU.items():
             sentences = [s.replace(k, v) for s in sentences]
 
-    if language == 'eng' and use_nemo_normalization:
+    if language == 'en' and use_nemo_normalization:
         if not NEMO_NORMALIZATION_AVAILABLE:
             raise ValueError(f'NeMo normalization tool is not installed.')
 
@@ -377,7 +383,7 @@ if __name__ == '__main__':
             imported_class = model_utils.import_class_by_path(classpath)  # type: ASRModel
             print(f"Restoring model : {imported_class.__name__}")
             asr_model = imported_class.restore_from(restore_path=args.model)  # type: ASRModel
-            model_name = os.path.splitext(os.path.basename(asr_model))[0]
+            model_name = os.path.splitext(os.path.basename(args.model))[0]
         else:
             # restore model by name
             asr_model = ASRModel.from_pretrained(model_name=args.model)  # type: ASRModel

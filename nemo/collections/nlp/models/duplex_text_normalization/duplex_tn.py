@@ -240,6 +240,7 @@ class DuplexTextNormalizationModel(nn.Module):
             final_outputs: A list of str where each str is the final output text for an input text.
         """
         original_sents = [s for s in sents]
+        # sents = [x.replace("-", " - ") for x in sents]
         # Separate into words
         if not processed:
             sents = [self.decoder.processor.tokenize(x).split() for x in sents]
@@ -252,6 +253,7 @@ class DuplexTextNormalizationModel(nn.Module):
         output_spans = self.decoder._infer(sents, nb_spans, span_starts, span_ends, inst_directions)
         # print(sents)
         # print(tag_preds)
+        # print(output_spans)
         # Prepare final outputs
         final_outputs = []
         for ix, (sent, tags) in enumerate(zip(sents, tag_preds)):

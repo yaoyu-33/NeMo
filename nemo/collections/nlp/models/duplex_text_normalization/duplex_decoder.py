@@ -114,12 +114,10 @@ class DuplexDecoderModel(NLPModel):
             batch = {k: v.squeeze(dim=0) for k, v in batch.items()}
 
         # Apply Transformer
-        outputs = self.model(
-            input_ids=batch['input_ids'],
-            decoder_input_ids=batch['decoder_input_ids'],
-            attention_mask=batch['attention_mask'],
-            labels=batch['labels'],
-        )
+        outputs = self.model(input_ids=batch['input_ids'],decoder_input_ids=batch['decoder_input_ids'],attention_mask=batch['attention_mask'],labels=batch['labels'])
+
+        print(self._tokenizer.batch_decode(batch['input_ids']))
+        import pdb; pdb.set_trace()
         train_loss = outputs.loss
 
         lr = self._optimizer.param_groups[0]['lr']
@@ -355,10 +353,7 @@ class DuplexDecoderModel(NLPModel):
         batch = tokenizer(all_inputs, padding=True, return_tensors='pt')
         input_ids = batch['input_ids'].to(self.device)
 
-        generated_texts, generated_ids, sequence_toks_scores = self._generate_predictions(
-            input_ids=input_ids, model_max_len=self.max_sequence_len
-        )
-
+        generated_texts, generated_ids, sequence_toks_scores = self._generate_predictions(input_ids=input_ids, model_max_len=self.max_sequence_len)
         # Use covering grammars (if enabled)
         if self.use_cg:
 

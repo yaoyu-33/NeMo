@@ -5,19 +5,22 @@ MIN_SCORE=-5
 CUT_PREFIX=0
 SCRIPTS_DIR="scripts"
 OFFSET=0
-LANGUAGE='eng' # 'eng', 'ru', 'other'
+LANGUAGE='de' # 'en', 'ru', 'other'
 MIN_SEGMENT_LEN=0
 MAX_SEGMENT_LEN=1
 ADDITIONAL_SPLIT_SYMBOLS=" "
 USE_NEMO_NORMALIZATION='False'
 
-FOLDER="spanish"
+FOLDER="de"
 #DATA_DIR="/home/ebakhturina/data/segmentation/${FOLDER}/data"
+DATA_DIR="/home/ebakhturina/data/segmentation/german/librivox_data"
+MODEL_NAME_OR_PATH="/home/ebakhturina/data/segmentation/models/de/best_stt_de_citrinet_1024.nemo"
+OUTPUT_DIR="/home/ebakhturina/data/segmentation/german/output"
 
-DATA_DIR="/home/ebakhturina/data/ctc_segmentation/eng"
+#DATA_DIR="/home/ebakhturina/data/ctc_segmentation/eng"
 #DATA_DIR="/home/ebakhturina/data/segmentation/test/data"
-MODEL_NAME_OR_PATH="stt_en_conformer_ctc_large" #"stt_en_citrinet_512_gamma_0_25" #stt_en_citrinet_256  #
-OUTPUT_DIR="/home/ebakhturina/data/segmentation/${FOLDER}/out_${MODEL_NAME_OR_PATH}_2"
+#MODEL_NAME_OR_PATH="stt_es_citrinet_512" #"stt_en_citrinet_512_gamma_0_25" #stt_en_citrinet_256  #
+#OUTPUT_DIR="/home/ebakhturina/data/segmentation/${FOLDER}/out_${MODEL_NAME_OR_PATH}_2"
 
 #DATA_DIR="/mnt/sdb/DATA/youtube_mayank/YT/data"
 #MODEL_NAME_OR_PATH="stt_en_citrinet_512_gamma_0_25" #stt_en_citrinet_256 # "QuartzNet15x5Base-En" #
@@ -99,7 +102,6 @@ do
   --data=$OUTPUT_DIR/processed/ \
   --model=$MODEL_NAME_OR_PATH  \
   --window_len $WINDOW \
-  --debug \
   --no_parallel || exit
 done
 
@@ -135,12 +137,15 @@ python $SCRIPTS_DIR/process_manifests.py \
 python /home/ebakhturina/NeMo/examples/asr/transcribe_speech.py \
 pretrained_name=$MODEL_NAME_OR_PATH \
 dataset_manifest=${OUTPUT_DIR}/all_manifest.json \
-output_filename=${OUTPUT_DIR}/manifests/transcribed_${MODEL_NAME_OR_PATH}.json
+output_filename=${OUTPUT_DIR}/manifests/transcribed.json || python /home/ebakhturina/NeMo/examples/asr/transcribe_speech.py \
+model_path=$MODEL_NAME_OR_PATH \
+dataset_manifest=${OUTPUT_DIR}/all_manifest.json \
+output_filename=${OUTPUT_DIR}/manifests/transcribed.json
 
-python $SCRIPTS_DIR/process_tail.py --manifest=${OUTPUT_DIR}/manifests/transcribed_${MODEL_NAME_OR_PATH}.json \
+python $SCRIPTS_DIR/process_tail.py --manifest=${OUTPUT_DIR}/manifests/transcribed.json \
 --sr=16000
 
 python /home/ebakhturina/NeMo/tools/speech_data_explorer/data_explorer.py \
 --port 8055 \
-${OUTPUT_DIR}/manifests/transcribed_${MODEL_NAME_OR_PATH}_tail.json
+${OUTPUT_DIR}/manifests/transcribed_tail.json
 
