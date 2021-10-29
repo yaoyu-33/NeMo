@@ -114,6 +114,12 @@ class MegatronGPTModel(NLPModel):
         return output_tensor
 
     def training_step(self, batch, batch_idx):
+        if batch_idx == 11:
+            logging.info(f'batch_idx: {batch_idx}')
+        position_embeddings_sum = sum(
+            [p.sum() for p in self.model.language_model.embedding.position_embeddings.parameters()]
+        )
+        # logging.info(f'mp_rank_{AppState().model_parallel_rank}_position_embeddings_sum_{position_embeddings_sum}')
         tokens, labels, loss_mask, attention_mask, position_ids = self.process_batch(batch)
         output_tensor = self(tokens, position_ids, attention_mask, labels)
         loss = self.loss_func(loss_mask, output_tensor)

@@ -14,6 +14,7 @@
 
 import os
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -744,7 +745,14 @@ class NeMoModelCheckpoint(ModelCheckpoint):
         return filepath
 
     def on_save_checkpoint(self, trainer, pl_module, checkpoint):
+        # save checkpoint with .tmp extension, then move to .ckpt extension
+        # orig_checkpoint = checkpoint
+        # checkpoint = orig_checkpoint + '.tmp'
+        # output = super().on_save_checkpoint(trainer, pl_module, checkpoint)
+        # shutil.move(checkpoint, orig_checkpoint)
+        # checkpoint = orig_checkpoint
         output = super().on_save_checkpoint(trainer, pl_module, checkpoint)
+
         if not self.always_save_nemo:
             return output
 
