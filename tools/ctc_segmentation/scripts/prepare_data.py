@@ -18,6 +18,8 @@ import os
 import re
 from pathlib import Path
 from typing import List
+from joblib import Parallel, delayed
+from tqdm import tqdm
 
 import regex
 import scipy.io.wavfile as wav
@@ -40,6 +42,7 @@ parser.add_argument("--in_text", type=str, required=True, help='Path to a text f
 parser.add_argument("--output_dir", type=str, required=True, help='Path to output directory')
 parser.add_argument("--audio_dir", type=str, required=True, help='Path to folder with .mp3 or .wav audio files')
 parser.add_argument('--sample_rate', type=int, default=16000, help='Sampling rate used during ASR model training')
+parser.add_argument("--n_jobs", default=-2, type=int, help="The maximum number of concurrently running jobs")
 parser.add_argument(
     '--language',
     type=str,
@@ -418,15 +421,25 @@ if __name__ == '__main__':
         audio_paths = list(Path(args.audio_dir).glob("*"))
         assert len(set([os.path.splitext(x.name)[-1] for x in audio_paths]).difference(set([".wav", ".mp3"]))) == 0
 
-        workers = []
-        for i in range(len(audio_paths)):
-            wav_file = os.path.join(args.output_dir, os.path.splitext(audio_paths[i].name)[0] + ".wav")
-            worker = multiprocessing.Process(
-                target=process_audio, args=(audio_paths[i], wav_file, args.cut_prefix, args.sample_rate),
-            )
-            workers.append(worker)
-            worker.start()
-        for w in workers:
-            w.join()
+        normalized_lines = Parallel(n_jobs=args.n_jobs)(
+            delayed(process_audio)(audio_paths[i], os.path.join(args.output_dir, os.path.splitext(audio_paths[i].name)[0] + ".wav"), args.cut_prefix, args.sample_rate) for i in tqdm(range(len(audio_paths)))
+        )
+
+
+        # try:
+        #     workers = []
+        #     for i in :
+        #         wav_file = os.path.join(args.output_dir, os.path.splitext(audio_paths[i].name)[0] + ".wav")
+        #         worker = multiprocessing.Pool(
+        #             target=process_audio, args=(audio_paths[i], wav_file, args.cut_prefix, args.sample_rate),
+        #         )
+        #         workers.append(worker)
+        #         worker.start()
+        #     for w in workers:
+        #         w.join()
+        # except Exception as e:
+        #     print(f"Error: {e}")
+        #     worker.terminate()
+        #     exit(1)
 
     print('Done.')

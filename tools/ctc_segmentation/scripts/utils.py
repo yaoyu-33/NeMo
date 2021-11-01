@@ -89,7 +89,7 @@ def get_segments(
     # works for sentences CitriNet
     from prepare_bpe import prepare_tokenized_text_nemo_works_modified
     ground_truth_mat, utt_begin_indices = prepare_tokenized_text_nemo_works_modified(text, tokenizer, vocabulary)
-    _print(ground_truth_mat, vocabulary)
+    # _print(ground_truth_mat, vocabulary)
 
     """
     # QN
@@ -110,9 +110,9 @@ def get_segments(
     timings, char_probs, char_list = cs.ctc_segmentation(config, log_probs, ground_truth_mat)
     segments = cs.determine_utterance_segments(config, utt_begin_indices, char_probs, timings, text)
 
-    for i, (word, segment) in enumerate(zip(text, segments)):
-        if i < 10:
-            print(f"{segment[0]:.2f} {segment[1]:.2f} {segment[2]:3.4f} {word}")
+    # for i, (word, segment) in enumerate(zip(text, segments)):
+    #     if i < 10:
+    #         print(f"{segment[0]:.2f} {segment[1]:.2f} {segment[2]:3.4f} {word}")
 
     write_output(output_file, path_wav, segments, text, text_no_preprocessing, text_normalized)
 
@@ -197,11 +197,11 @@ def worker_configurer(queue, level):
 
 
 def worker_process(
-    queue, configurer, level, log_probs, path_wav, transcript_file, output_file, vocabulary, window_len
+    queue, configurer, level, log_probs, path_wav, transcript_file, output_file, vocabulary, tokenizer, asr_model, index_duration, window_len
 ):
     configurer(queue, level)
     name = multiprocessing.current_process().name
     innerlogger = logging.getLogger('worker')
     innerlogger.info(f'{name} is processing {path_wav}, window_len={window_len}')
-    get_segments(log_probs, path_wav, transcript_file, output_file, vocabulary, window_len)
+    get_segments(log_probs, path_wav, transcript_file, output_file, vocabulary, tokenizer, asr_model, index_duration, window_len)
     innerlogger.info(f'{name} completed segmentation of {path_wav}, segments saved to {output_file}')

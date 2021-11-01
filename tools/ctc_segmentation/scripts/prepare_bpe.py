@@ -70,7 +70,7 @@ def prepare_tokenized_text_nemo_works_modified(text, tokenizer, vocabulary):
 
     utt_begin_indices.append(len(ground_truth_mat))
     ground_truth_mat += [[blank_idx, space_idx]]
-    print(ground_truth_mat)
+    # print(ground_truth_mat)
     ground_truth_mat = np.array(ground_truth_mat, np.int64)
     return ground_truth_mat, utt_begin_indices
 

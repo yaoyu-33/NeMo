@@ -244,7 +244,7 @@ class EncDecCTCModel(ASRModel, ExportableEncDecModel, ASRModuleMixin):
             self.encoder.freeze()
             self.decoder.freeze()
             logging_level = logging.get_verbosity()
-            logging.set_verbosity(logging.WARNING)
+            logging.set_verbosity(logging.INFO)
             # Work in tmp directory - will store manifest file there
             with tempfile.TemporaryDirectory() as tmpdir:
                 with open(os.path.join(tmpdir, 'manifest.json'), 'w') as fp:

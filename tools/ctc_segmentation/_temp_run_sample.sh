@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # default values for optional arguments
-MIN_SCORE=-5
+MIN_SCORE=-2
 CUT_PREFIX=0
 SCRIPTS_DIR="scripts"
 OFFSET=0
-LANGUAGE='de' # 'en', 'ru', 'other'
+LANGUAGE='en' # 'en', 'ru', 'other'
 MIN_SEGMENT_LEN=0
 MAX_SEGMENT_LEN=1
 ADDITIONAL_SPLIT_SYMBOLS=" "
@@ -17,14 +17,19 @@ DATA_DIR="/home/ebakhturina/data/segmentation/german/librivox_data"
 MODEL_NAME_OR_PATH="/home/ebakhturina/data/segmentation/models/de/best_stt_de_citrinet_1024.nemo"
 OUTPUT_DIR="/home/ebakhturina/data/segmentation/german/output"
 
-#DATA_DIR="/home/ebakhturina/data/ctc_segmentation/eng"
-#DATA_DIR="/home/ebakhturina/data/segmentation/test/data"
-#MODEL_NAME_OR_PATH="stt_es_citrinet_512" #"stt_en_citrinet_512_gamma_0_25" #stt_en_citrinet_256  #
-#OUTPUT_DIR="/home/ebakhturina/data/segmentation/${FOLDER}/out_${MODEL_NAME_OR_PATH}_2"
+DATA_DIR="/home/ebakhturina/data/ctc_segmentation/eng"
+DATA_DIR="/home/ebakhturina/data/segmentation/test/data"
+MODEL_NAME_OR_PATH="stt_en_citrinet_512_gamma_0_25" #stt_en_citrinet_256  #
+OUTPUT_DIR="output_segmentation"
 
 #DATA_DIR="/mnt/sdb/DATA/youtube_mayank/YT/data"
 #MODEL_NAME_OR_PATH="stt_en_citrinet_512_gamma_0_25" #stt_en_citrinet_256 # "QuartzNet15x5Base-En" #
 #OUTPUT_DIR="/mnt/sdb/DATA/youtube_mayank/YT/out_${MODEL_NAME_OR_PATH}_2"
+
+#Benchmarking
+DATA_DIR="/home/ebakhturina/data/segmentation/benchmark"
+MODEL_NAME_OR_PATH="stt_en_citrinet_512_gamma_0_25"
+OUTPUT_DIR="/home/ebakhturina/data/segmentation/benchmark/nemo_${MODEL_NAME_OR_PATH}"
 
 rm -rf ${OUTPUT_DIR}
 
@@ -142,10 +147,10 @@ model_path=$MODEL_NAME_OR_PATH \
 dataset_manifest=${OUTPUT_DIR}/all_manifest.json \
 output_filename=${OUTPUT_DIR}/manifests/transcribed.json
 
-python $SCRIPTS_DIR/process_tail.py --manifest=${OUTPUT_DIR}/manifests/transcribed.json \
---sr=16000
+#python $SCRIPTS_DIR/process_tail.py --manifest=${OUTPUT_DIR}/manifests/transcribed.json \
+#--sr=16000
 
 python /home/ebakhturina/NeMo/tools/speech_data_explorer/data_explorer.py \
 --port 8055 \
-${OUTPUT_DIR}/manifests/transcribed_tail.json
+${OUTPUT_DIR}/manifests/transcribed.json
 

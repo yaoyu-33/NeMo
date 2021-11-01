@@ -101,6 +101,7 @@ if __name__ == '__main__':
     segments_dir = os.path.join(args.output_dir, 'segments')
     os.makedirs(segments_dir, exist_ok=True)
     for path_audio in audio_paths:
+        print(f'Processing {path_audio.name}...')
         transcript_file = os.path.join(data_dir, path_audio.name.replace(".wav", ".txt"))
         segment_file = os.path.join(
             segments_dir, f"{args.window_len}_" + path_audio.name.replace(".wav", "_segments.txt")
