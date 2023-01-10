@@ -79,7 +79,7 @@ def main(cfg):
 
         job_path = stage.get_job_path()
         command = " \\\n  ".join(sys.argv)
-        with open(job_path.folder / "nemo_megatron_cmd.log", "w") as f:
+        with open(job_path.folder / "launcher_cmd.log", "w") as f:
             f.write(command)
 
         if job_id:

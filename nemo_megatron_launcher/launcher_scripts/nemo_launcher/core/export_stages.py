@@ -51,7 +51,7 @@ class Export(NemoMegatronStage):
     def _make_checkpoint_search_command(self, **kwargs):
         checkpoint_override = [f"{k}={v}" for k, v in kwargs.items()]
         return (
-            f"python3 {self._nemo_megatron_path / 'nemo_launcher/collections/checkpoint_search.py'} "
+            f"python3 {self._launcher_scripts_path / 'nemo_launcher/collections/checkpoint_search.py'} "
             f"{' '.join(checkpoint_override)}"
         )
 
@@ -197,7 +197,7 @@ class Export(NemoMegatronStage):
         checkpoint_path = ft_model_cfg.checkpoint_path
         triton_model_dir = triton_cfg.triton_model_dir
 
-        nemo_megatron_scripts_path = Path(cfg.nemo_megatron_path)
+        nemo_megatron_scripts_path = Path(cfg.launcher_scripts_path)
         converter_path = FT_PATH / "examples/pytorch/gpt/utils/nemo_ckpt_convert.py"
         prepare_model_config_script_path = (
             nemo_megatron_scripts_path / "nemo_launcher/collections/export_scripts/prepare_triton_model_config.py"
@@ -250,7 +250,7 @@ class Export(NemoMegatronStage):
         checkpoint_path = ft_model_cfg.checkpoint_path
         triton_model_dir = triton_cfg.triton_model_dir
 
-        nemo_megatron_scripts_path = Path(cfg.nemo_megatron_path)
+        nemo_megatron_scripts_path = Path(cfg.launcher_scripts_path)
         converter_path = FT_PATH / "examples/pytorch/t5/utils/nemo_t5_ckpt_convert.py"
         prepare_model_config_script_path = (
             nemo_megatron_scripts_path / "nemo_launcher/collections/export_scripts/prepare_triton_model_config.py"

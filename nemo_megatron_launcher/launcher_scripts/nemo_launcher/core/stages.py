@@ -138,7 +138,7 @@ class NemoMegatronStage:
 
         numa_override = [f"{k}={v}" for k, v in numa_cfg.items()]
         numa_command = [
-            f"python3 -u {self._nemo_megatron_path / 'nemo_launcher/collections/numa_mapping.py'}",
+            f"python3 -u {self._launcher_scripts_path / 'nemo_launcher/collections/numa_mapping.py'}",
             *numa_override,
         ]
         numa_command = " \\\n  ".join(numa_command)
@@ -204,7 +204,7 @@ class NemoMegatronStage:
         cfg = self.cfg
         data_dir = cfg.get("data_dir")
         base_results_dir = cfg.get("base_results_dir")
-        mounts_string = f"{self._nemo_megatron_path}:{self._nemo_megatron_path},{data_dir}:{data_dir},{base_results_dir}:{base_results_dir}"
+        mounts_string = f"{self._launcher_scripts_path}:{self._launcher_scripts_path},{data_dir}:{data_dir},{base_results_dir}:{base_results_dir}"
 
         container_mounts = cfg.get("container_mounts")
         mounts_string += add_container_mounts(container_mounts)
@@ -299,8 +299,8 @@ class NemoMegatronStage:
         return choice_model_type, choice_name
 
     @property
-    def _nemo_megatron_path(self) -> Path:
-        return Path(self.cfg.get("nemo_megatron_path"))
+    def _launcher_scripts_path(self) -> Path:
+        return Path(self.cfg.get("launcher_scripts_path"))
 
     @property
     def _nemo_code_path(self) -> Path:
@@ -486,7 +486,7 @@ class Training(NeMoStage):
             preprocessed_dir = self.stage_cfg.run.get("preprocessed_dir")
             blending_alpha = self.stage_cfg.run.get("blending_alpha")
             auto_blend_command = (
-                f"python3 {self._nemo_megatron_path / 'nemo_launcher/collections/auto_blend.py'} "
+                f"python3 {self._launcher_scripts_path / 'nemo_launcher/collections/auto_blend.py'} "
                 f"model_type={choice_model_type} "
                 f"preprocessed_dir={preprocessed_dir} "
                 f"blending_alpha={blending_alpha}"
@@ -537,7 +537,7 @@ class FineTuning(NeMoStage):
         task_name = self.stage_cfg.run.get("task_name")
 
         # GLUE for internal use
-        download_glue_script_path = self._nemo_megatron_path / "nemo_launcher/utils/data_utils/download_glue.py"
+        download_glue_script_path = self._launcher_scripts_path / "nemo_launcher/utils/data_utils/download_glue.py"
         if download_glue_script_path.exists():
             from nemo_megatron.utils.data_utils.download_glue import download_glue, TASKS_LOWER
 
@@ -585,7 +585,7 @@ class PromptLearning(NeMoStage):
         # Prepare squad dataset
         if task_name == 'squad':
             prepare_squad_for_prompt_learning(
-                os.path.join(data_dir, "prompt_data"), self._nemo_megatron_path,
+                os.path.join(data_dir, "prompt_data"), self._launcher_scripts_path,
             )
 
     def _get_nemo_code_path(self, model_type: str) -> Path:
@@ -678,7 +678,7 @@ class Conversion(NemoMegatronStage):
         }
         hparams_override = [f"{k}={v}" for k, v in override_configs.items()]
         override_command = [
-            f"python3 -u {self._nemo_megatron_path / 'nemo_launcher/collections/hparams_override.py'}",
+            f"python3 -u {self._launcher_scripts_path / 'nemo_launcher/collections/hparams_override.py'}",
             *hparams_override,
         ]
         override_command = " \\\n  ".join(override_command)
@@ -694,7 +694,7 @@ class Conversion(NemoMegatronStage):
         """
         checkpoint_override = [f"{k}={v}" for k, v in kwargs.items()]
         return (
-            f"python3 {self._nemo_megatron_path / 'nemo_launcher/collections/checkpoint_search.py'} "
+            f"python3 {self._launcher_scripts_path / 'nemo_launcher/collections/checkpoint_search.py'} "
             f"{' '.join(checkpoint_override)}"
         )
 
@@ -783,7 +783,7 @@ class NeMoEvaluation(NeMoStage):
         if any([choice_model_type.startswith(type) for type in ["prompt", "ia3", "adapter"]]):
             pred_file_path = self.stage_cfg.get("pred_file_path")
             ground_truth_file_path = self.stage_cfg.get("ground_truth_file_path")
-            code_path = self._nemo_megatron_path / "nemo_launcher/collections/metric_calculation/squad_metric_calc.py"
+            code_path = self._launcher_scripts_path / "nemo_launcher/collections/metric_calculation/squad_metric_calc.py"
             args = create_args_list(pred=pred_file_path, ground_truth=ground_truth_file_path,)
             split_string = self.stage_cfg.get("split_string", None)
             if split_string:
@@ -795,13 +795,13 @@ class NeMoEvaluation(NeMoStage):
             pred_file_path = output_file_path_prefix + "_validation_dataloader0_inputs_preds_labels.json"
             ground_truth_file_path = self.stage_cfg.model.data.validation_ds.get("ground_truth_file_path")
             code_path = (
-                self._nemo_megatron_path / "nemo_launcher/collections/metric_calculation/fine_tuning_metric_calc.py"
+                self._launcher_scripts_path / "nemo_launcher/collections/metric_calculation/fine_tuning_metric_calc.py"
             )
             args = create_args_list(
                 replace_underscore=False,
                 pred_file=pred_file_path,
                 target_file=ground_truth_file_path,
-                squad_eval_script_path=self._nemo_megatron_path
+                squad_eval_script_path=self._launcher_scripts_path
                 / "nemo_launcher/collections/metric_calculation/squad_metric_calc.py",
             )
             calculation_command = [f"python3 {code_path}", *args]
@@ -863,7 +863,7 @@ class EvalHarnessEvaluation(NemoMegatronStage):
         run_cfg = self.stage_cfg.get("run")
         tasks = run_cfg.get("tasks")
 
-        code_path = self._nemo_megatron_path / "nemo_launcher/collections/eval_harness/download.py"
+        code_path = self._launcher_scripts_path / "nemo_launcher/collections/eval_harness/download.py"
         args = create_args_list(tasks=tasks, cache_dir=cache_dir,)
         download_command = [f"python3 {code_path}", *args]
         download_command_string = " \\\n  ".join(download_command)
@@ -892,7 +892,7 @@ class EvalHarnessEvaluation(NemoMegatronStage):
         run_cfg = self.stage_cfg.get("run")
         model_cfg = self.stage_cfg.get("model")
 
-        code_path = self._nemo_megatron_path / "nemo_launcher/collections/eval_harness/evaluate.py"
+        code_path = self._launcher_scripts_path / "nemo_launcher/collections/eval_harness/evaluate.py"
         args = create_args_list(
             replace_underscore=False,
             name=run_cfg.get("name"),

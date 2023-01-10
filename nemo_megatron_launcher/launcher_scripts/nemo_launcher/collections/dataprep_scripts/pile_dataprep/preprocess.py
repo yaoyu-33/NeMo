@@ -23,7 +23,7 @@ import psutil
 
 @hydra.main(config_path="conf", config_name="config")
 def main(cfg):
-    nemo_megatron_path = cfg.get("nemo_megatron_path")
+    launcher_scripts_path = cfg.get("launcher_scripts_path")
     data_config = cfg.get("data_config")
     data_dir = cfg.get("data_dir")
     rm_extracted = cfg.get("rm_extracted")
@@ -34,14 +34,14 @@ def main(cfg):
     vocab_dir = cfg.get("vocab_save_dir")
     assert vocab_dir is not None, "vocab_save_dir must be a valid path."
     if "gpt" in tokenizer_type.lower():
-        vocab_path = os.path.join(nemo_megatron_path, vocab_dir, "vocab.json")
+        vocab_path = os.path.join(launcher_scripts_path, vocab_dir, "vocab.json")
     else:
-        vocab_path = os.path.join(nemo_megatron_path, vocab_dir, "vocab.txt")
+        vocab_path = os.path.join(launcher_scripts_path, vocab_dir, "vocab.txt")
 
     # Merges
     merges_dir = cfg.get("merges_save_dir")
     assert merges_dir is not None, "merges_save_dir must be a valid path."
-    merges_path = os.path.join(nemo_megatron_path, merges_dir, "merges.txt")
+    merges_path = os.path.join(launcher_scripts_path, merges_dir, "merges.txt")
 
     # This compile doesn't seem to do anything. It compiles
     # "helpers.cpython-38-x86_64-linux-gnu.so", but since that file already

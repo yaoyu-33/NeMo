@@ -289,9 +289,9 @@ class BCPLauncher(Launcher):
             lines += ["", "# setup"] + setup
 
         # Add pause_and_prime_dns_connection to command groups on BCP
-        nemo_megatron_path = Path("/opt/NeMo/nemo_megatron_launcher/launch_scripts")  # Hard code path on BCP
+        launcher_scripts_path = Path("/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts")  # Hard code path on BCP
         pause_and_prime_dns_connection_command = (
-            f"python3 -u {nemo_megatron_path / 'nemo_launcher/collections/pause_and_prime_dns_connections.py'}"
+            f"python3 -u {launcher_scripts_path / 'nemo_launcher/collections/pause_and_prime_dns_connections.py'}"
         )
         _nemo_code_path = "/opt/NeMo"
         for ind in range(len(command_groups)):

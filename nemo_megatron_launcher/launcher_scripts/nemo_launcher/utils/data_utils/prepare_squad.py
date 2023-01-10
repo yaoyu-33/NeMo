@@ -22,12 +22,12 @@ from .download_squad import download_squad
 NEMO_MEGATRON_CI = os.getenv("NEMO_MEGATRON_CI", "False").lower() in ("true", "t", "1")
 
 
-def prepare_squad_for_prompt_learning(data_dir, nemo_megatron_path):
+def prepare_squad_for_prompt_learning(data_dir, launcher_scripts_path):
     squad_dir = data_dir
     download_squad(squad_dir, ["v1.1"])
     squad_v1_dir = os.path.join(squad_dir, "v1.1")
 
-    preprocess_script = nemo_megatron_path / "nemo_launcher/utils/data_utils/prompt_learning_squad_preprocessing.py"
+    preprocess_script = launcher_scripts_path / "nemo_launcher/utils/data_utils/prompt_learning_squad_preprocessing.py"
     os.system(f"python3 {preprocess_script} " f"--data-dir={squad_v1_dir} ")
 
 
