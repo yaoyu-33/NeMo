@@ -21,7 +21,6 @@ import sys
 import traceback
 
 import numpy as np
-
 from nemo.utils import logging
 
 

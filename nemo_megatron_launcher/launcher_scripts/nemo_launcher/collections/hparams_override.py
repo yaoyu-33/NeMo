@@ -12,15 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import math
 import os
 import time
-from collections import defaultdict
 
 import hydra
-from omegaconf import OmegaConf
-
 from nemo.utils.get_rank import is_global_rank_zero
+from omegaconf import OmegaConf
 
 
 @hydra.main(config_path="conf", config_name="hparams_override")

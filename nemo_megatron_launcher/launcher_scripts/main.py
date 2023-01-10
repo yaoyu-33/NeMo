@@ -12,13 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import copy
 import math
-import subprocess
 import sys
 
 import hydra
 import omegaconf
+
 from nemo_launcher.core.data_stages import CustomDataPreparation, MC4DataPreparation, PileDataPreparation
 from nemo_launcher.core.export_stages import Export
 from nemo_launcher.core.stages import (
@@ -28,7 +27,6 @@ from nemo_launcher.core.stages import (
     FineTuning,
     IA3Learning,
     NeMoEvaluation,
-    NemoMegatronStage,
     PromptLearning,
     Training,
 )

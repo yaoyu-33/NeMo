@@ -14,7 +14,6 @@
 
 import json
 import os
-import re
 
 from best_download import download_file
 from lm_eval.base import Task, rf

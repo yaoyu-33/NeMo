@@ -26,7 +26,6 @@ Example usage:
 import argparse
 import os
 import subprocess
-import sys
 
 # fmt: off
 ALL_LANGS = [

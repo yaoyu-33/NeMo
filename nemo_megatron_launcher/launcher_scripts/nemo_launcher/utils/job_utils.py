@@ -17,7 +17,7 @@ import select
 import subprocess
 import sys
 from pathlib import Path
-from typing import IO, Any, Callable, Dict, Iterator, List, Optional, Tuple, Type, Union
+from typing import IO, Any, Dict, List, Optional, Tuple, Union
 
 
 class JobPaths:

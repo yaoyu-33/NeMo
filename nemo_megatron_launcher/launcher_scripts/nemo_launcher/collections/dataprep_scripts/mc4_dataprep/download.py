@@ -23,7 +23,6 @@ Example usage:
 
 import argparse
 import os
-import sys
 import time
 
 from prepare import LANG_SPLIT, setup_git_lfs

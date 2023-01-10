@@ -13,9 +13,7 @@
 # limitations under the License.
 
 import argparse
-import io
 import os
-import shutil
 import sys
 import time
 

@@ -15,7 +15,6 @@
 import json
 import os
 import time
-from pathlib import Path
 
 from .download_squad import download_squad
 

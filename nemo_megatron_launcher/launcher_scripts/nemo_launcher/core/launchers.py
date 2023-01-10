@@ -20,12 +20,9 @@ import random
 import re
 import shlex
 import shutil
-import subprocess
-import sys
-import uuid
 import warnings
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, Iterable, List, Optional, Set, Union
 
 import nemo_launcher.utils.job_utils as job_utils
 from nemo_launcher.core.logger import logger

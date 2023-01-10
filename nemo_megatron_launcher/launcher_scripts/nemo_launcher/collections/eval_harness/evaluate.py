@@ -24,11 +24,11 @@ import time
 from datetime import datetime
 from typing import Union
 
-from lm_eval import base, evaluator, models, tasks, utils
-from omegaconf import OmegaConf
-
 from nemo.utils import logging
 from nemo.utils.get_rank import is_global_rank_zero
+from omegaconf import OmegaConf
+
+from lm_eval import base, evaluator, models, tasks, utils
 
 
 def parse_args(parser_main):

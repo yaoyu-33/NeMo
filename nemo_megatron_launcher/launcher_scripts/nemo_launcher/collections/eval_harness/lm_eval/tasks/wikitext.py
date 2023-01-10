@@ -17,7 +17,7 @@ import re
 
 import torch
 from best_download import download_file
-from lm_eval.base import PerplexityTask, rf
+from lm_eval.base import PerplexityTask
 from lm_eval.utils import sh
 
 

@@ -16,12 +16,6 @@ import torch
 import tqdm
 from lm_eval import utils
 from lm_eval.base import LM
-from pytorch_lightning.trainer.trainer import Trainer
-from torch.nn.utils.rnn import pad_sequence
-from torch.utils.data import DataLoader, Dataset
-from torch.utils.data.dataloader import default_collate
-
-from .nemo_gpt3 import DDP_initialize
 from nemo.collections.nlp.models.language_modeling.megatron_gpt_prompt_learning_model import (
     MegatronGPTPromptLearningModel,
 )
@@ -31,6 +25,12 @@ from nemo.collections.nlp.parts.nlp_overrides import NLPDDPStrategy
 from nemo.utils import logging
 from nemo.utils.app_state import AppState
 from nemo.utils.get_rank import is_global_rank_zero
+from pytorch_lightning.trainer.trainer import Trainer
+from torch.nn.utils.rnn import pad_sequence
+from torch.utils.data import DataLoader, Dataset
+from torch.utils.data.dataloader import default_collate
+
+from .nemo_gpt3 import DDP_initialize
 
 
 class PromptRequestDataset(Dataset):

@@ -12,10 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import numpy as np
-from lm_eval.base import MultipleChoiceTask, rf
+from lm_eval.base import MultipleChoiceTask
 
-from ..metrics import mean
 from .common import HFTask
 
 

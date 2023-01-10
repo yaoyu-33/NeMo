@@ -17,13 +17,12 @@ import enum
 import hashlib
 import json
 import os
-import random
 import re
 from functools import partial
 
 import numpy as np
 import spacy
-from lm_eval.metrics import mean, perplexity, weighted_mean, weighted_perplexity
+from lm_eval.metrics import mean, weighted_mean, weighted_perplexity
 from sqlitedict import SqliteDict
 
 
