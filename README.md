@@ -483,7 +483,7 @@ Command Manager.
 
 
 ```
-srun -p [partition] -N 1 --container-mounts=/path/to/local/dir:/workspace/mount_dir --container-image=[container_tag] bash -c "cp -r /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/auto_configurator /opt/FasterTransformer /workspace/mount_dir/"
+srun -p [partition] -N 1 --container-mounts=/path/to/local/dir:/workspace/mount_dir --container-image=[container_tag] bash -c "cp -r /opt/NeMo-Megatron-Launcher/launcher_scripts /opt/NeMo-Megatron-Launcher/auto_configurator /opt/FasterTransformer /workspace/mount_dir/"
 ```
 
 Install the NeMo Megatron scripts dependencies on the head node of the cluster:
@@ -552,7 +552,7 @@ automatically mounted into the container. The parameters `cluster` and `cluster_
 must be set to `bcm` for all the tasks.
 
 **Base Command Platform**: The `launcher_scripts_path` should be set to 
-/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts , which is the default location where the scripts 
+/opt/NeMo-Megatron-Launcher/launcher_scripts , which is the default location where the scripts 
 are located inside the container. The `data_dir` parameter can also be
 modified to point to where the dataset will be loaded from or saved. The 
 `base_results_dir` can also be modified to point to where the results, 
@@ -720,7 +720,7 @@ python3 main.py
 In order to run the data preparation script on Base Command Platform, set the
 `cluster_type` parameter in `conf/config.yaml` to `bcp`. This can also be overridden
 from the command line, using hydra. 
-By default, the data preparation script will download the data into the `nemo_megatron_launcher/data/` directory.
+By default, the data preparation script will download the data into the `data/` directory.
 We recommend that the `data_dir` parameter is set to a workspace, so that the data 
 is visible across multiple jobs later on. The vocab and merge files should also be 
 stored to the same workspace as the dataset, for later usage. The data preparation code 
@@ -731,8 +731,8 @@ shared by multiple users in the same ACE by setting the permissions of the `nemo
 
 To run the data preparation pipeline for GPT-3 models, run:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py stages=[data_preparation] \
-cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data/the_pile_gpt3 \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py stages=[data_preparation] \
+cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data/the_pile_gpt3 \
 base_results_dir=/mount/results data_preparation.file_numbers='0-29' \
 data_preparation.vocab_save_dir=/mount/data/bpe data_preparation.merges_save_dir=/mount/data/bpe >> /results/data_gpt3_log.txt 2>&1
 ```
@@ -814,7 +814,7 @@ python3 main.py
 In order to run the data preparation script on Base Command Platform, set the
 `cluster_type` parameter in `conf/config.yaml` to `bcp`. This can also be overridden
 from the command line, using hydra. 
-By default, the data preparation script will download the data into the `nemo_megatron_launcher/data/` directory.
+By default, the data preparation script will download the data into the `data/` directory.
 We recommend that the `data_dir` parameter is set to a workspace, so that the data 
 is visible across multiple jobs later on. The vocab and merge files should also be 
 stored to the same workspace as the dataset. The data preparation code 
@@ -826,9 +826,9 @@ shared by multiple users in the same ACE by setting the permissions of the `nemo
 
 To run the data preparation pipeline for T5 models, run:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py data_preparation=t5/download_t5_pile \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py data_preparation=t5/download_t5_pile \
 stages=[data_preparation] \
-cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data/the_pile_t5 \
+cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data/the_pile_t5 \
 base_results_dir=/mount/results data_preparation.file_numbers='0-29' \
 data_preparation.vocab_save_dir=/mount/data/bpe >> /results/data_t5_log.txt 2>&1
 ```
@@ -906,7 +906,7 @@ python3 main.py
 In order to run the data preparation script on Base Command Platform, set the
 `cluster_type` parameter in `conf/config.yaml` to `bcp`. This can also be overridden
 from the command line, using hydra. 
-By default, the data preparation script will download the data into the `nemo_megatron_launcher/data/` directory.
+By default, the data preparation script will download the data into the `data/` directory.
 We recommend that the `data_dir` parameter is set to a workspace, so that the data 
 is visible across multiple jobs later on. The tokenizer model file should also be 
 stored to the same workspace as the dataset. The data preparation code 
@@ -918,9 +918,9 @@ shared by multiple users in the same ACE by setting the permissions of the `nemo
 
 To run the data preparation pipeline for mT5 models, run:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py data_preparation=mt5/download_mc4 \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py data_preparation=mt5/download_mc4 \
 stages=[data_preparation] \
-cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data \
+cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data \
 base_results_dir=/mount/results data_preparation.languages=\'cs,da,de,el,en,es,fi,fr,hi,hu,it,ja,ko,lt,lv,nl,no,pl,pt,ro,ru,sk,sv,zh\' \
 data_preparation.run.node_array_size=20 data_preparation.run.workers_per_node=4 >> /results/data_mt5_log.txt 2>&1
 ```
@@ -998,9 +998,9 @@ python3 main.py
 
 To train a 126M GPT-3 model on Base Command Platform cluster on 8 nodes, use the command:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py training=gpt3/126m \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py training=gpt3/126m \
 stages=[training] \
-launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data/the_pile_gpt3 \
+launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data/the_pile_gpt3 \
 base_results_dir=/mount/results training.trainer.num_nodes=\$NGC_ARRAY_SIZE \
 training.model.tokenizer.vocab_file=/mount/data/bpe/vocab.json \
 training.model.tokenizer.merge_file=/mount/data/bpe/merges.txt cluster_type=bcp
@@ -1036,9 +1036,9 @@ python3 main.py
 
 To train a 5B GPT-3 model on Base Command Platform cluster on 16 nodes, use the command:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py training=gpt3/5b \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py training=gpt3/5b \
 stages=[training] \
-launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data/the_pile_gpt3 \
+launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data/the_pile_gpt3 \
 base_results_dir=/mount/results training.trainer.num_nodes=\$NGC_ARRAY_SIZE \
 training.model.tokenizer.vocab_file=/mount/data/bpe/vocab.json \
 training.model.tokenizer.merge_file=/mount/data/bpe/merges.txt cluster_type=bcp
@@ -1070,9 +1070,9 @@ python3 main.py
 
 To train a 20B GPT-3 model on Base Command Platform cluster on 64 nodes, use the command:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py training=gpt3/20b \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py training=gpt3/20b \
 stages=[training] \
-launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data/the_pile_gpt3 \
+launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data/the_pile_gpt3 \
 base_results_dir=/mount/results training.trainer.num_nodes=\$NGC_ARRAY_SIZE \
 training.model.tokenizer.vocab_file=/mount/data/bpe/vocab.json \
 training.model.tokenizer.merge_file=/mount/data/bpe/merges.txt cluster_type=bcp
@@ -1103,9 +1103,9 @@ python3 main.py
 
 To train a 40B GPT-3 model on Base Command Platform cluster on 128 nodes, use the command:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py training=gpt3/40b \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py training=gpt3/40b \
 stages=[training] \
-launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data/the_pile_gpt3 \
+launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data/the_pile_gpt3 \
 base_results_dir=/mount/results training.trainer.num_nodes=\$NGC_ARRAY_SIZE \
 training.model.tokenizer.vocab_file=/mount/data/bpe/vocab.json \
 training.model.tokenizer.merge_file=/mount/data/bpe/merges.txt cluster_type=bcp
@@ -1137,9 +1137,9 @@ python3 main.py
 
 To train a 175B GPT-3 model on Base Command Platform cluster on 128 nodes, use the command:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py training=gpt3/175b \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py training=gpt3/175b \
 stages=[training] \
-launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data/the_pile_gpt3 \
+launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data/the_pile_gpt3 \
 base_results_dir=/mount/results training.trainer.num_nodes=\$NGC_ARRAY_SIZE \
 training.model.tokenizer.vocab_file=/mount/data/bpe/vocab.json \
 training.model.tokenizer.merge_file=/mount/data/bpe/merges.txt cluster_type=bcp
@@ -1200,9 +1200,9 @@ python3 main.py
 
 To train a 220M model on Base Command Platform cluster on 4 nodes, use the command:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py training=t5/220m \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py training=t5/220m \
 stages=[training] \
-launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data/the_pile_t5 \
+launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data/the_pile_t5 \
 base_results_dir=/mount/results training.trainer.num_nodes=\$NGC_ARRAY_SIZE \
 training.model.tokenizer.vocab_file=/mount/data/bpe/vocab.txt cluster_type=bcp
 ```
@@ -1235,9 +1235,9 @@ python3 main.py
 
 To train a 3B model on Base Command Platform cluster on 20 nodes, use the command:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py training=t5/3b \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py training=t5/3b \
 stages=[training] \
-launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data/the_pile_t5 \
+launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data/the_pile_t5 \
 base_results_dir=/mount/results training.trainer.num_nodes=\$NGC_ARRAY_SIZE \
 training.model.tokenizer.vocab_file=/mount/data/bpe/vocab.txt cluster_type=bcp
 ```
@@ -1268,9 +1268,9 @@ python3 main.py
 
 To train a 11B model on Base Command Platform cluster on 20 nodes, use the command:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py training=t5/11b \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py training=t5/11b \
 stages=[training] \
-launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data/the_pile_t5 \
+launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data/the_pile_t5 \
 base_results_dir=/mount/results training.trainer.num_nodes=\$NGC_ARRAY_SIZE \
 training.model.tokenizer.vocab_file=/mount/data/bpe/vocab.txt cluster_type=bcp
 ```
@@ -1301,9 +1301,9 @@ python3 main.py
 
 To train a 23B model on Base Command Platform cluster on 40 nodes, use the command:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py training=t5/23b \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py training=t5/23b \
 stages=[training] \
-launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data/the_pile_t5 \
+launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data/the_pile_t5 \
 base_results_dir=/mount/results training.trainer.num_nodes=\$NGC_ARRAY_SIZE \
 training.model.tokenizer.vocab_file=/mount/data/bpe/vocab.txt cluster_type=bcp
 ```
@@ -1333,9 +1333,9 @@ python3 main.py
 
 To train a 41B model on Base Command Platform cluster on 40 nodes, use the command:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py training=t5/41b \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py training=t5/41b \
 stages=[training] \
-launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data/the_pile_t5 \
+launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data/the_pile_t5 \
 base_results_dir=/mount/results training.trainer.num_nodes=\$NGC_ARRAY_SIZE \
 training.model.tokenizer.vocab_file=/mount/data/bpe/vocab.txt cluster_type=bcp
 ```
@@ -1376,9 +1376,9 @@ python3 main.py
 
 To train a 170M model on Base Command Platform cluster on 4 nodes, use the command:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py training=mt5/170m \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py training=mt5/170m \
 stages=[training] \
-launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data base_results_dir=/mount/results \
+launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data base_results_dir=/mount/results \
 training.trainer.num_nodes=\$NGC_ARRAY_SIZE cluster_type=bcp
 ```
 The command above assumes that the data and results workspaces are mounted in the `/mount/data` and `/mount/results` 
@@ -1412,9 +1412,9 @@ python3 main.py
 
 To train a 390M model on Base Command Platform cluster on 8 nodes, use the command:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py training=mt5/390m \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py training=mt5/390m \
 stages=[training] \
-launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data base_results_dir=/mount/results \
+launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data base_results_dir=/mount/results \
 training.trainer.num_nodes=\$NGC_ARRAY_SIZE cluster_type=bcp
 ```
 The command above assumes that the data and results workspaces are mounted in the `/mount/data` and `/mount/results` 
@@ -1444,9 +1444,9 @@ python3 main.py
 
 To train a 3B model on Base Command Platform cluster on 20 nodes, use the command:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py training=mt5/3b \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py training=mt5/3b \
 stages=[training] \
-launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data base_results_dir=/mount/results \
+launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data base_results_dir=/mount/results \
 training.trainer.num_nodes=\$NGC_ARRAY_SIZE cluster_type=bcp
 ```
 The command above assumes that the data and results workspaces are mounted in the `/mount/data` and `/mount/results` 
@@ -1570,7 +1570,7 @@ In this section, we will explain how to run each of the stages described above.
 ###### 5.3.2.1.1. Slurm
 <a id="markdown-slurm" name="slurm"></a>
 
-First, our configuration setup assumes that the `/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/auto_configurator`, `/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts` 
+First, our configuration setup assumes that the `/opt/NeMo-Megatron-Launcher/auto_configurator`, `/opt/NeMo-Megatron-Launcher/launcher_scripts` 
 and `/opt/FasterTransformer` directories have been copied from the container to the local file system.
 
 The first parameter that must be set is the `nemo_megatron_hp_tool_path` parameter inside the `conf/config.yaml` 
@@ -1771,7 +1771,7 @@ correspoinding YAML file. To run the training HP tool, after all the parameters 
 To run the HP Tool in BCP, the `cluster_type` parameter must be set to `bcp`. All the parameters can be configured 
 through CLI overrides. For example, to launch a training HP search for the 126m GPT-3 model, run this command:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/auto_configurator/main.py search_config=gpt3/0.126b run_inference_hp_search=False nemo_megatron_hp_tool_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/auto_configurator data_dir=/mount/data/the_pile_gpt3 base_results_dir=/mount/results/hp_tool search_config.train_settings.num_nodes=$NGC_ARRAY_SIZE cluster_type=bcp
+python3 /opt/NeMo-Megatron-Launcher/auto_configurator/main.py search_config=gpt3/0.126b run_inference_hp_search=False nemo_megatron_hp_tool_path=/opt/NeMo-Megatron-Launcher/auto_configurator data_dir=/mount/data/the_pile_gpt3 base_results_dir=/mount/results/hp_tool search_config.train_settings.num_nodes=$NGC_ARRAY_SIZE cluster_type=bcp
 ```
 
 This command assumes that the dataset directory and the results directory are datasets and workspaces mounted correctly. 
@@ -1975,7 +1975,7 @@ python3 main.py
 In order to run the data preparation script on Base Command Platform, set the
 `cluster_type` parameter in `conf/config.yaml` to `bcp`. This can also be overridden
 from the command line, using hydra. 
-By default, the data preparation script will put the preprocessed data into the `nemo_megatron_launcher/data/` directory.
+By default, the data preparation script will put the preprocessed data into the `data/` directory.
 We recommend that the `data_dir` parameter is set to a workspace, so that the data 
 is visible across multiple jobs later on. The tokenizer model files should also be 
 stored to the same workspace as the dataset, for later usage. The data preparation code 
@@ -1984,8 +1984,8 @@ nodes which is equal to the number of custom dataset files for faster preparatio
 
 To run the data preparation pipeline, run:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py stages=[data_preparation] \
-cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py stages=[data_preparation] \
+cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data \
 base_results_dir=/mount/results data_preparation=custom_dataset \
 dataprepartion.train_tokenizer_args.inp=/path/to/text/file/for/training/tokenizer \
 datapreparation.raw_dataset_files=[/path/to/custom_data_files] \
@@ -2317,8 +2317,8 @@ from the command line, using hydra. The conversion script must be launched in a 
 To run the conversion pipeline to convert a 126M checkpoint stored in 
 `/mount/results/gpt3_126m/results/checkpoints`, run:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py stages=[conversion] \
-cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data/the_pile_gpt3 \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py stages=[conversion] \
+cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data/the_pile_gpt3 \
 base_results_dir=/mount/results conversion.run.model_train_name=gpt3_126m conversion.model.vocab_file=/mount/data/bpe/vocab.json \
 conversion.model.merge_file=/mount/data/bpe/merges.txt conversion.run.results_dir=/mount/results/gpt3_126m/convert_nemo \
 conversion.model.checkpoint_folder=/mount/results/gpt3_126m/results/checkpoints conversion.model.tensor_model_parallel_size=1 \
@@ -2411,9 +2411,9 @@ from the command line, using hydra. The conversion script must be launched in a 
 To run the conversion pipeline to convert a T5 220M checkpoint stored in 
 `/mount/results/t5_220m/results/checkpoints`, run:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py conversion=convert_t5 \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py conversion=convert_t5 \
 stages=[conversion] \
-cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data/the_pile_t5 \
+cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data/the_pile_t5 \
 base_results_dir=/mount/results conversion.model.vocab_file=/mount/data/bpe/vocab.txt \
 conversion.run.model_train_name=t5_220m conversion.run.results_dir=/mount/results/t5_220m/results/convert_nemo \
 conversion.model.checkpoint_folder=/mount/results/t5_220m/checkpoints \
@@ -2508,9 +2508,9 @@ from the command line, using hydra. The conversion script must be launched in a 
 To run the conversion pipeline to convert a mT5 390M checkpoint stored in 
 `/mount/results/mt5_390m/results/checkpoints`, run:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py conversion=convert_mt5 \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py conversion=convert_mt5 \
 stages=[conversion] \
-cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data \
+cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data \
 conversion.run.model_train_name=mt5_390m \
 base_results_dir=/mount/results conversion.run.results_dir=/mount/results/mt5_390m/results/convert_nemo \
 conversion.model.checkpoint_folder=/mount/results/mt5_390m/checkpoints \
@@ -2606,9 +2606,9 @@ from the command line, using hydra. The evaluation script must be launched in a 
 To run the fine-tuning pipeline to fine-tune a 220M T5 model converted checkpoint stored in 
 /mount/results/t5_220m/convert_nemo, run:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py fine_tuning=t5/squad stages=[fine_tuning] \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py fine_tuning=t5/squad stages=[fine_tuning] \
  cluster_type=bcp \
-launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data base_results_dir=/mount/results \
+launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data base_results_dir=/mount/results \
 fine_tuning.run.model_train_name=t5_220m \
 fine_tuning.model.restore_from_path=/mount/results/t5_220m/convert_nemo/results/megatron_t5.nemo \
 >> /results/finetune_t5_log.txt 2>&1
@@ -2696,9 +2696,9 @@ from the command line, using hydra. The evaluation script must be launched in a 
 To run the fine-tuning pipeline to fine-tune a 390M mT5 model converted checkpoint stored in 
 /mount/results/mt5_390m/convert_nemo, run:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py  fine_tuning=mt5/xquad stages=[fine_tuning] \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py  fine_tuning=mt5/xquad stages=[fine_tuning] \
  cluster_type=bcp \
-launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data base_results_dir=/mount/results \
+launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data base_results_dir=/mount/results \
 fine_tuning.run.model_train_name=mt5_390m \
 fine_tuning.model.restore_from_path=/mount/results/mt5_390m/convert_nemo/results/megatron_mt5_xquad.nemo \
 >> /results/finetune_mt5_log.txt 2>&1
@@ -2835,9 +2835,9 @@ from the command line, using hydra. The evaluation script must be launched in a 
 To run the prompt learning pipeline to prompt-learn a 5B GPT-3 model converted checkpoint stored in 
 `/mount/results/gpt3_5b/convert_nemo`, run:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py prompt_learning=gpt3/squad \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py prompt_learning=gpt3/squad \
 stages=[prompt_learning] cluster_type=bcp \
-launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data base_results_dir=/mount/results \
+launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data base_results_dir=/mount/results \
 prompt_learning.run.model_train_name=gpt3_5b \
 prompt_learning.model.language_model_path=/mount/results/gpt3_5b/convert_nemo/results/megatron_gpt.nemo \
 >> /results/prompt_learning_gpt3_log.txt 2>&1
@@ -2921,9 +2921,9 @@ from the command line, using hydra. The evaluation script must be launched in a 
 To run the prompt learning pipeline to prompt-learn a 220M T5 model converted checkpoint stored in 
 `/mount/results/t5_220m/convert_nemo`, run:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py prompt_learning=t5/squad \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py prompt_learning=t5/squad \
 stages=[prompt_learning] cluster_type=bcp \
-launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data base_results_dir=/mount/results \
+launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data base_results_dir=/mount/results \
 prompt_learning.run.model_train_name=t5_220m \
 prompt_learning.model.language_model_path=/mount/results/t5_220m/convert_nemo/results/megatron_t5.nemo \
 >> /results/prompt_learning_t5_log.txt 2>&1
@@ -2936,9 +2936,9 @@ Any other parameter can also be added to the command to modify its behavior.
 To run the prompt learning pipeline to prompt-learn a 390M mT5 model converted checkpoint stored in 
 `/mount/results/mt5_390m/convert_nemo`, run:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py prompt_learning=mt5/squad \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py prompt_learning=mt5/squad \
 stages=[prompt_learning] cluster_type=bcp \
-launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data base_results_dir=/mount/results \
+launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data base_results_dir=/mount/results \
 prompt_learning.run.model_train_name=mt5_390m \
 prompt_learning.model.language_model_path=/mount/results/t5_220m/convert_nemo/results/megatron_mt5.nemo \
 >> /results/prompt_learning_mt5_log.txt 2>&1
@@ -3049,9 +3049,9 @@ from the command line, using hydra. The evaluation script must be launched in a 
 To run the adapter learning pipeline to adapter-learn a 5B GPT-3 model converted checkpoint stored in 
 `/mount/results/gpt3_5b/convert_nemo`, run:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py adapter_learning=gpt3/squad \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py adapter_learning=gpt3/squad \
 stages=[adapter_learning] cluster_type=bcp \
-launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data base_results_dir=/mount/results \
+launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data base_results_dir=/mount/results \
 adapter_learning.run.model_train_name=gpt3_5b \
 adapter_learning.model.language_model_path=/mount/results/gpt3_5b/convert_nemo/results/megatron_gpt.nemo \
 >> /results/adapter_learning_gpt3_log.txt 2>&1
@@ -3064,9 +3064,9 @@ Any other parameter can also be added to the command to modify its behavior.
 To run the IA3 learning pipeline ro IA3-learn a 5B GPT-3 model converted checkpoint stored in 
 `/mount/results/gpt3_5b/convert_nemo`, run:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py ia3_learning=gpt3/squad \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py ia3_learning=gpt3/squad \
 stages=[ia3_learning] cluster_type=bcp \
-launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data base_results_dir=/mount/results \
+launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data base_results_dir=/mount/results \
 ia3_learning.run.model_train_name=gpt3_5b \
 ia3_learning.model.language_model_path=/mount/results/gpt3_5b/convert_nemo/results/megatron_gpt.nemo \
 >> /results/ia3_learning_gpt3_log.txt 2>&1
@@ -3155,9 +3155,9 @@ from the command line, using hydra. The evaluation script must be launched in a 
 To run the adapter learning pipeline to adapter-learn a 220M T5 model converted checkpoint stored in 
 `/mount/results/t5_220m/convert_nemo`, run:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py adapter_learning=t5/squad \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py adapter_learning=t5/squad \
 stages=[adapter_learning] cluster_type=bcp \
-launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data base_results_dir=/mount/results \
+launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data base_results_dir=/mount/results \
 adapter_learning.run.model_train_name=t5_220m \
 adapter_learning.model.language_model_path=/mount/results/t5_220m/convert_nemo/results/megatron_t5.nemo \
 >> /results/adapter_learning_t5_log.txt 2>&1
@@ -3170,9 +3170,9 @@ Any other parameter can also be added to the command to modify its behavior.
 To run the IA3 learning pipeline to IA3-learn a 220M T5 model converted checkpoint stored in 
 `/mount/results/t5_220m/convert_nemo`, run:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py ia3_learning=t5/squad \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py ia3_learning=t5/squad \
 stages=[ia3_learning] cluster_type=bcp \
-launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data base_results_dir=/mount/results \
+launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data base_results_dir=/mount/results \
 ia3_learning.run.model_train_name=t5_220m \
 ia3_learning.model.language_model_path=/mount/results/t5_220m/convert_nemo/results/megatron_t5.nemo \
 >> /results/ia3_learning_t5_log.txt 2>&1
@@ -3279,8 +3279,8 @@ from the command line, using hydra. The evaluation script must be launched in a 
 To run the evaluation pipeline to evaluate a 126M GPT-3 model checkpoint stored in 
 `/mount/results/gpt3_126m/checkpoints`, run:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py stages=[evaluation] \
- cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data/the_pile_gpt3 \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py stages=[evaluation] \
+ cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data/the_pile_gpt3 \
 base_results_dir=/mount/results evaluation.model.vocab_file=/mount/data/bpe/vocab.json \
 evaluation.model.merge_file=/mount/data/bpe/merges.txt evaluation.run.results_dir=/mount/results/gpt3_126m/evaluation \
 evaluation.model.checkpoint_folder=/mount/results/gpt3_126m/results/checkpoints evaluation.model.eval_batch_size=16 \
@@ -3374,9 +3374,9 @@ from the command line, using hydra. The evaluation script must be launched in a 
 To run the evaluation pipeline to evaluate a 220M T5 model which has been fine-tuned
 on `squad` task and checkpoint stored in `/mount/results/t5_220m/squad/results/checkpoints`, run:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py evaluation=t5/squad \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py evaluation=t5/squad \
 stages=[evaluation] \
- cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data \
+ cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data \
 base_results_dir=/mount/results evaluation.run.model_train_name=t5_220m \
 evaluation.model.restore_from_path=/mount/results/t5_220m/squad/results/checkpoints/megatron_t5_glue.nemo \
 >> /results/eval_t5_log.txt 2>&1
@@ -3471,8 +3471,8 @@ from the command line, using hydra. The evaluation script must be launched in a 
 To run the evaluation pipeline to evaluate a 390M mT5 model which has been fine-tuned
 on `xquad` task and checkpoint stored in `/mount/results/mt5_390m/xquad/results/checkpoints`, run:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py evaluation=mt5/xquad \
-stages=[evaluation] cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py evaluation=mt5/xquad \
+stages=[evaluation] cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data \
 base_results_dir=/mount/results evaluation.run.model_train_name=mt5_390m \
 evaluation.model.restore_from_path=/mount/results/mt5_390m/xquad/results/checkpoints/megatron_mt5_xquad.nemo \
 >> /results/eval_mt5_log.txt 2>&1
@@ -3572,8 +3572,8 @@ from the command line, using hydra. The evaluation script must be launched in a 
 To run the evaluation pipeline to evaluate a prompt learned 5B GPT-3 model checkpoint stored in 
 `/mount/results/gpt3_5b/checkpoints`, run:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py stages=[evaluation] evaluation=prompt_gpt3/squad \
- cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py stages=[evaluation] evaluation=prompt_gpt3/squad \
+ cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data \
 base_results_dir=/mount/results evaluation.run.results_dir=/mount/results/gpt3_5b/eval_prompt_squad \
 evaluation.model.nemo_model=/mount/results/gpt3_5b/prompt_learning_squad/results/megatron_gpt_prompt.nemo \
 evaluation.model.nemo_model=4 evaluation.model.tensor_model_parallel_size=2 \
@@ -3675,8 +3675,8 @@ from the command line, using hydra. The evaluation script must be launched in a 
 To run the evaluation pipeline to evaluate a prompt learned 220M T5 model checkpoint stored in 
 `/mount/results/t5_220m/prompt_learning_squad`, run:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py stages=[evaluation] evaluation=prompt_t5/squad \
- cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py stages=[evaluation] evaluation=prompt_t5/squad \
+ cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data \
 base_results_dir=/mount/results evaluation.run.results_dir=/mount/results/t5_220m/eval_prompt_squad \
 evaluation.model.virtual_prompt_model_file=/mount/results/t5_220m/prompt_learning_squad/results/megatron_t5_prompt.nemo \
 >> /results/eval_prompt_t5_log.txt 2>&1
@@ -3688,8 +3688,8 @@ Any other parameter can also be added to the command to modify its behavior.
 To run the evaluation pipeline to evaluate a prompt learned 390M mT5 model checkpoint stored in 
 `/mount/results/mt5_390m/prompt_learning_squad`, run:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py stages=[evaluation] evaluation=prompt_mt5/squad \
- cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py stages=[evaluation] evaluation=prompt_mt5/squad \
+ cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data \
 base_results_dir=/mount/results evaluation.run.results_dir=/mount/results/mt5_390m/eval_prompt_squad \
 evaluation.model.virtual_prompt_model_file=/mount/results/mt5_390m/prompt_learning_squad/results/megatron_mt5_prompt.nemo \
 >> /results/eval_prompt_mt5_log.txt 2>&1
@@ -3790,8 +3790,8 @@ from the command line, using hydra. The evaluation script must be launched in a 
 To run the evaluation pipeline to evaluate an adapter learned 220M T5 model checkpoint stored in 
 `/mount/results/gpt3_5b/adapter_learning_squad`, run:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py stages=[evaluation] evaluation=adapter_gpt3/squad \
- cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py stages=[evaluation] evaluation=adapter_gpt3/squad \
+ cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data \
 base_results_dir=/mount/results evaluation.run.results_dir=/mount/results/gpt3_5b/eval_adapter_squad \
 evaluation.model.adapter_model_file=/mount/results/gpt3_5b/adapter_learning_squad/results/megatron_gpt3_adapter.nemo \
 >> /results/eval_adapter_gpt3_log.txt 2>&1
@@ -3803,8 +3803,8 @@ Any other parameter can also be added to the command to modify its behavior.
 To run the evaluation pipeline to evaluate an IA3 learned 220M T5 model checkpoint stored in 
 `/mount/results/gpt3_5b/ia3_learning_squad`, run:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py stages=[evaluation] evaluation=ia3_gpt3/squad \
- cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py stages=[evaluation] evaluation=ia3_gpt3/squad \
+ cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data \
 base_results_dir=/mount/results evaluation.run.results_dir=/mount/results/gpt3_5b/eval_ia3_squad \
 evaluation.model.adapter_model_file=/mount/results/gpt3_5b/ia3_learning_squad/results/megatron_t5_ia3.nemo \
 >> /results/eval_ia3_t5_log.txt 2>&1
@@ -3898,8 +3898,8 @@ from the command line, using hydra. The evaluation script must be launched in a 
 To run the evaluation pipeline to evaluate an adapter learned 220M T5 model checkpoint stored in 
 `/mount/results/t5_220m/adapter_learning_squad`, run:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py stages=[evaluation] evaluation=adapter_t5/squad \
- cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py stages=[evaluation] evaluation=adapter_t5/squad \
+ cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data \
 base_results_dir=/mount/results evaluation.run.results_dir=/mount/results/t5_220m/eval_adapter_squad \
 evaluation.model.adapter_model_file=/mount/results/t5_220m/adapter_learning_squad/results/megatron_t5_adapter.nemo \
 >> /results/eval_adapter_t5_log.txt 2>&1
@@ -3911,8 +3911,8 @@ Any other parameter can also be added to the command to modify its behavior.
 To run the evaluation pipeline to evaluate an IA3 learned 220M T5 model checkpoint stored in 
 `/mount/results/t5_220m/ia3_learning_squad`, run:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py stages=[evaluation] evaluation=ia3_t5/squad \
- cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py stages=[evaluation] evaluation=ia3_t5/squad \
+ cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data \
 base_results_dir=/mount/results evaluation.run.results_dir=/mount/results/t5_220m/eval_ia3_squad \
 evaluation.model.adapter_model_file=/mount/results/t5_220m/ia3_learning_squad/results/megatron_t5_ia3.nemo \
 >> /results/eval_ia3_t5_log.txt 2>&1
@@ -4026,9 +4026,9 @@ from the command line, using hydra. The export scripts must be launched in a mul
 To run the export pipeline to evaluate a 126M GPT-3 model checkpoint stored in 
 `/mount/results/gpt3_126m/checkpoints`, run:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py \
 stages=[export] \
-cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data/the_pile_gpt3 \
+cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data/the_pile_gpt3 \
 base_results_dir=/mount/results \
 export.run.model_train_name=gpt3_126m \
 export.model.tensor_model_parallel_size=2 \
@@ -4132,9 +4132,9 @@ from the command line, using hydra. The export scripts must be launched in a mul
 To run the export pipeline to evaluate a 220M T5 model checkpoint stored in 
 `/mount/results/t5_220m/checkpoints`, run:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py \
 stages=[export] \
-cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data/the_pile_t5 \
+cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data/the_pile_t5 \
 base_results_dir=/mount/results \
 export.run.model_train_name=t5_220m \
 export.model.tensor_model_parallel_size=1 \
@@ -4241,9 +4241,9 @@ from the command line, using hydra. The export scripts must be launched in a mul
 To run the export pipeline to evaluate a 125M mT5 model checkpoint stored in 
 `/mount/results/mt5_125m/checkpoints`, run:
 ```
-python3 /opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts/main.py \
+python3 /opt/NeMo-Megatron-Launcher/launcher_scripts/main.py \
 stages=[export] \
-cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/nemo_megatron_launcher/launcher_scripts data_dir=/mount/data/the_pile_mt5 \
+cluster_type=bcp launcher_scripts_path=/opt/NeMo-Megatron-Launcher/launcher_scripts data_dir=/mount/data/the_pile_mt5 \
 base_results_dir=/mount/results \
 export.run.model_train_name=mt5_125m \
 export.model.tensor_model_parallel_size=1 \
