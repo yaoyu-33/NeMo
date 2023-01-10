@@ -22,10 +22,10 @@ from typing import Any, Dict, Iterable, List, Optional, Set, Tuple, Union
 
 import hydra
 import omegaconf
-from nemo_megatron.core.launchers import AutoLauncher
-from nemo_megatron.core.stages import NemoMegatronStage, clean_command_groups, create_args_list
-from nemo_megatron.utils.file_utils import download_single_file
-from nemo_megatron.utils.job_utils import JobPaths
+from nemo_launcher.core.launchers import AutoLauncher
+from nemo_launcher.core.stages import NemoMegatronStage, clean_command_groups, create_args_list
+from nemo_launcher.utils.file_utils import download_single_file
+from nemo_launcher.utils.job_utils import JobPaths
 
 
 class DataStage(NemoMegatronStage):

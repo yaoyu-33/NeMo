@@ -19,7 +19,7 @@ import shutil
 import sys
 import time
 
-from nemo_megatron.utils.file_utils import download_single_file
+from nemo_launcher.utils.file_utils import download_single_file
 
 NEMO_MEGATRON_CI = os.getenv("NEMO_MEGATRON_CI", "False").lower() in ("true", "t", "1")
 VERSIONS = ["v1.1", "v2.0", "xquad"]

@@ -22,14 +22,14 @@ from typing import Any, Dict, Iterable, List, Optional, Set, Tuple, Union
 
 import hydra
 import omegaconf
-from nemo_megatron.core.launchers import AutoLauncher
-from nemo_megatron.core.logger import logger
-from nemo_megatron.utils.data_utils.prepare_squad import (
+from nemo_launcher.core.launchers import AutoLauncher
+from nemo_launcher.core.logger import logger
+from nemo_launcher.utils.data_utils.prepare_squad import (
     prepare_squad_for_fine_tuning,
     prepare_squad_for_prompt_learning,
 )
-from nemo_megatron.utils.file_utils import download_single_file
-from nemo_megatron.utils.job_utils import JobPaths
+from nemo_launcher.utils.file_utils import download_single_file
+from nemo_launcher.utils.job_utils import JobPaths
 from omegaconf import OmegaConf
 
 
@@ -539,7 +539,7 @@ class FineTuning(NeMoStage):
         # GLUE for internal use
         download_glue_script_path = self._launcher_scripts_path / "nemo_launcher/utils/data_utils/download_glue.py"
         if download_glue_script_path.exists():
-            from nemo_megatron.utils.data_utils.download_glue import download_glue, TASKS_LOWER
+            from nemo_launcher.utils.data_utils.download_glue import download_glue, TASKS_LOWER
 
             if task_name in TASKS_LOWER:
                 download_glue(data_dir=os.path.join(data_dir, "glue_data"), tasks=task_name)

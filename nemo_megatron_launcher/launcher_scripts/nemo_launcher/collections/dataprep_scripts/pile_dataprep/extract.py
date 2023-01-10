@@ -16,7 +16,7 @@ import multiprocessing
 import os
 
 import hydra
-import nemo_megatron.utils.file_utils as utils
+import nemo_launcher.utils.file_utils as utils
 
 
 @hydra.main(config_path="conf", config_name="config")

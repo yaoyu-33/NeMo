@@ -17,7 +17,7 @@ import subprocess
 from time import sleep
 
 import hydra
-import nemo_megatron.utils.file_utils as utils  # TODO: check if this in python path
+import nemo_launcher.utils.file_utils as utils  # TODO: check if this in python path
 import psutil
 
 

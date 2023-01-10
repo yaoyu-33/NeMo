@@ -27,8 +27,8 @@ import warnings
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Set, Tuple, Union
 
-import nemo_megatron.utils.job_utils as job_utils
-from nemo_megatron.core.logger import logger
+import nemo_launcher.utils.job_utils as job_utils
+from nemo_launcher.core.logger import logger
 
 NEMO_MEGATRON_CI = os.getenv("NEMO_MEGATRON_CI", "False").lower() in ("true", "t", "1")
 NEMO_MEGATRON_DEBUG = os.getenv("NEMO_MEGATRON_DEBUG", "False").lower() in ("true", "t", "1")
