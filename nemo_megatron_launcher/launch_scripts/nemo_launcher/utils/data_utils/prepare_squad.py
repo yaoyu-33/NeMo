@@ -27,7 +27,7 @@ def prepare_squad_for_prompt_learning(data_dir, nemo_megatron_path):
     download_squad(squad_dir, ["v1.1"])
     squad_v1_dir = os.path.join(squad_dir, "v1.1")
 
-    preprocess_script = nemo_megatron_path / "nemo_megatron/utils/data_utils/prompt_learning_squad_preprocessing.py"
+    preprocess_script = nemo_megatron_path / "nemo_launcher/utils/data_utils/prompt_learning_squad_preprocessing.py"
     os.system(f"python3 {preprocess_script} " f"--data-dir={squad_v1_dir} ")
 
 

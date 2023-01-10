@@ -19,9 +19,9 @@ import sys
 
 import hydra
 import omegaconf
-from nemo_megatron.core.data_stages import CustomDataPreparation, MC4DataPreparation, PileDataPreparation
-from nemo_megatron.core.export_stages import Export
-from nemo_megatron.core.stages import (
+from nemo_launcher.core.data_stages import CustomDataPreparation, MC4DataPreparation, PileDataPreparation
+from nemo_launcher.core.export_stages import Export
+from nemo_launcher.core.stages import (
     AdapterLearning,
     Conversion,
     EvalHarnessEvaluation,

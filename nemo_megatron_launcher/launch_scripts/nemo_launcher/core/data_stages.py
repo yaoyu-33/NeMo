@@ -237,7 +237,7 @@ class PileDataPreparation(DataStage):
     def _make_sub_stage_command(self, sub_stage: str) -> List[str]:
         """Make a command of the specified sub-stage"""
 
-        pile_prep_path = self._nemo_megatron_path / "nemo_megatron/collections/dataprep_scripts/pile_dataprep"
+        pile_prep_path = self._nemo_megatron_path / "nemo_launcher/collections/dataprep_scripts/pile_dataprep"
         stage_to_code_path = {
             "download": pile_prep_path / "download.py",
             "extract": pile_prep_path / "extract.py",
@@ -353,7 +353,7 @@ class MC4DataPreparation(DataStage):
 
     def _make_sub_stage_command(self, sub_stage: str) -> List[str]:
         """Make a command of the specified sub-stage"""
-        mc4_prep_path = self._nemo_megatron_path / "nemo_megatron/collections/dataprep_scripts/mc4_dataprep"
+        mc4_prep_path = self._nemo_megatron_path / "nemo_launcher/collections/dataprep_scripts/mc4_dataprep"
         stage_to_code_path = {
             "prepare": mc4_prep_path / "prepare.py",
             "download": mc4_prep_path / "download.py",
@@ -528,7 +528,7 @@ class CustomDataPreparation(DataStage):
         else:
             assert sub_stage == "preprocess", f"Unknown substage {sub_stage}"
             code_path = (
-                self._nemo_megatron_path / "nemo_megatron/collections/dataprep_scripts/custom_dataprep/preprocess.py"
+                self._nemo_megatron_path / "nemo_launchernemo_launcher/collections/dataprep_scripts/custom_dataprep/preprocess.py"
             )
             args = create_args_list(
                 output_path=data_cfg.get("preprocessed_dir"),

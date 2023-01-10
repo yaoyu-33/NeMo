@@ -291,7 +291,7 @@ class BCPLauncher(Launcher):
         # Add pause_and_prime_dns_connection to command groups on BCP
         nemo_megatron_path = Path("/opt/NeMo/nemo_megatron_launcher/launch_scripts")  # Hard code path on BCP
         pause_and_prime_dns_connection_command = (
-            f"python3 -u {nemo_megatron_path / 'nemo_megatron/collections/pause_and_prime_dns_connections.py'}"
+            f"python3 -u {nemo_megatron_path / 'nemo_launcher/collections/pause_and_prime_dns_connections.py'}"
         )
         _nemo_code_path = "/opt/NeMo"
         for ind in range(len(command_groups)):
@@ -446,7 +446,7 @@ def _get_default_parameters() -> Dict[str, Any]:
 def _make_sbatch_string(
     command_groups: List[List[str]],
     folder: Union[str, Path],
-    job_name: str = "nemo_megatron",
+    job_name: str = "nemo_launcher",
     partition: Optional[str] = None,
     time: int = 5,
     nodes: int = 1,
@@ -492,7 +492,7 @@ def _make_sbatch_string(
         a list of command to run in sbatch before running srun
     additional_parameters: dict
         Forces any parameter to a given value in sbatch. This can be useful
-        to add parameters which are not currently available in nemo_megatron.
+        to add parameters which are not currently available in nemo_launcher.
         Eg: {"mail-user": "blublu@nvidia.com", "mail-type": "BEGIN"}
     srun_args: List[str]
         Add each argument in the list to the srun call

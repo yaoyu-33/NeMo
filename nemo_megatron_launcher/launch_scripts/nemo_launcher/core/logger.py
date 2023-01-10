@@ -41,7 +41,7 @@ CONFIG = {
             "stream": "ext://sys.stderr",
         },
     },
-    "loggers": {"nemo_megatron": {"handlers": ["nemo_megatron_err", "nemo_megatron_out"], "level": level}},
+    "loggers": {"nemo_launcher": {"handlers": ["nemo_megatron_err", "nemo_megatron_out"], "level": level}},
 }
 
 
